@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getCard, type Card } from '@/data/cards';
-import { loadProfile, bracketLabel, type UserProfile } from '@/lib/storage';
+import { loadProfile, saveProfile, INCOME_BRACKETS, type UserProfile, type IncomeBracket } from '@/lib/storage';
 import {
   HEYMAX_CATEGORIES,
   HEYMAX_INFO,
@@ -549,16 +549,25 @@ export default function DashboardPage() {
     .map(id => getCard(id))
     .filter((c): c is Card => c !== undefined);
 
-  const incomeLabel = bracketLabel(profile.incomeBracket);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Top nav */}
       <div className="sticky top-0 z-20 bg-surface border-b border-outline px-4 pb-4 header-safe">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-lg font-bold text-on-surface">More</h1>
+          <p className="text-xs text-on-surface-variant">Cards, profile &amp; settings</p>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 pt-6 page-bottom">
+        {/* Card section header */}
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-lg font-bold text-on-surface">Vault</h1>
-            <p className="text-xs text-on-surface-variant">Your card library · Income: {incomeLabel}</p>
+            <span className="text-sm font-bold text-on-surface">
+              {myCards.length} {myCards.length === 1 ? 'card' : 'cards'} in your wallet
+            </span>
+            <p className="text-xs text-muted mt-0.5">Tap any card to expand</p>
           </div>
           <button
             onClick={() => router.push('/onboarding/cards')}
@@ -566,17 +575,6 @@ export default function DashboardPage() {
           >
             Edit cards
           </button>
-        </div>
-      </div>
-
-      <div className="max-w-2xl mx-auto px-4 pt-6 page-bottom">
-        {/* Summary chip */}
-        <div className="flex items-center gap-2 mb-5">
-          <span className="text-sm font-bold text-on-surface">
-            {myCards.length} {myCards.length === 1 ? 'card' : 'cards'} in your wallet
-          </span>
-          <span className="text-muted">·</span>
-          <span className="text-sm text-muted">tap any card to expand</span>
         </div>
 
         {myCards.length === 0 ? (
@@ -618,6 +616,50 @@ export default function DashboardPage() {
 
         {/* HeyMax section — always visible */}
         <HeyMaxSection myCards={myCards} />
+
+        {/* Income bracket */}
+        <div className="w-full mt-6 bg-surface rounded-2xl shadow-sm border border-outline px-4 py-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-surface-high flex items-center justify-center flex-shrink-0">
+            <span className="text-lg">💼</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-on-surface">Annual income</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">
+              Used to filter cards &amp; promos you&apos;re eligible for
+            </p>
+          </div>
+          <select
+            value={profile.incomeBracket}
+            onChange={e => setProfile(saveProfile({ incomeBracket: e.target.value as IncomeBracket }))}
+            className="flex-shrink-0 text-xs font-semibold text-primary bg-surface-high rounded-xl px-3 py-2.5 outline-none cursor-pointer"
+            aria-label="Income bracket"
+          >
+            {INCOME_BRACKETS.map(b => (
+              <option key={b.value} value={b.value} className="bg-surface text-on-surface">
+                {b.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* About & data */}
+        <button
+          onClick={() => router.push('/about')}
+          className="w-full mt-6 bg-surface rounded-2xl shadow-sm border border-outline px-4 py-4 flex items-center gap-3 text-left hover:bg-surface-high transition-colors"
+        >
+          <div className="w-10 h-10 rounded-xl bg-surface-high flex items-center justify-center flex-shrink-0">
+            <span className="text-lg">🔒</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-on-surface">About MilesVault</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">
+              Privacy · data sources · backup, import &amp; erase
+            </p>
+          </div>
+          <svg className="w-4 h-4 text-on-surface-variant flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
 
         {/* Disclaimer */}
         <p className="text-[11px] text-on-surface-variant text-center mt-8 leading-relaxed">

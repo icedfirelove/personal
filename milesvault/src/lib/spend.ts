@@ -74,6 +74,12 @@ export function addSpend(entry: Omit<SpendEntry, 'id'>): SpendEntry[] {
   return next;
 }
 
+export function addSpendBulk(entries: Omit<SpendEntry, 'id'>[]): SpendEntry[] {
+  const next = [...loadSpend(), ...entries.map(e => ({ ...e, id: uid() }))];
+  saveList(SPEND_KEY, next);
+  return next;
+}
+
 export function deleteSpend(id: string): SpendEntry[] {
   const next = loadSpend().filter(e => e.id !== id);
   saveList(SPEND_KEY, next);

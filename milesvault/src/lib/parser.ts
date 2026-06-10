@@ -254,25 +254,32 @@ function extractAmount(text: string): number | null {
   return n > 0 ? n : null;
 }
 
+function isPhrase(keyword: string): boolean {
+  return keyword.includes(' ') || keyword.includes('.') || keyword.includes('&');
+}
+
+/** Exact match: phrase in joined text, or token equality. */
+function exactHit(keyword: string, tokens: string[], joined: string): boolean {
+  if (isPhrase(keyword)) return joined.includes(keyword);
+  return tokens.includes(keyword);
+}
+
 /**
- * Does `keyword` appear in the input?
- * - multi-word / dotted keywords match as a phrase in the joined text
- * - single-word keywords match a token exactly, or by prefix:
- *   · token extends keyword ("uniqlos" → uniqlo), keyword ≥4 chars
- *   · token is a long prefix of keyword ("starbuck" → starbucks),
- *     token ≥6 chars so generic words like "shop" don't hit "shopback"
+ * Fuzzy match (only consulted when nothing matched exactly):
+ * - token extends keyword ("uniqlos" → uniqlo), keyword ≥4 chars
+ * - token is a near-complete prefix of keyword ("starbuck" → starbucks):
+ *   token ≥6 chars AND within 2 chars of the full keyword, so generic
+ *   words like "singapore" can't hit "singaporeair".
  */
-function keywordHit(keyword: string, tokens: string[], joined: string): boolean {
-  if (keyword.includes(' ') || keyword.includes('.') || keyword.includes('&')) {
-    return joined.includes(keyword);
-  }
-  if (tokens.includes(keyword)) return true;
+function fuzzyHit(keyword: string, tokens: string[]): boolean {
+  if (isPhrase(keyword)) return false;
   return tokens.some(
     t =>
       (keyword.length >= 4 && t.startsWith(keyword)) ||
-      (t.length >= 6 && keyword.startsWith(t)),
+      (t.length >= 6 && keyword.startsWith(t) && keyword.length - t.length <= 2),
   );
 }
+
 
 /** Shared merchant + category matching used by parseTransaction and resolveMerchant. */
 function matchMerchant(
@@ -284,30 +291,36 @@ function matchMerchant(
   let category: SpendCategory | null = null;
   const matchedTokens = new Set<string>();
 
-  // 1. Learned merchants first (user corrections beat the built-in dictionary)
   const learnedSorted = [...learned].sort((a, b) => b.keyword.length - a.keyword.length);
-  for (const lm of learnedSorted) {
-    if (keywordHit(lm.keyword, tokens, joined)) {
-      merchant = lm.display;
-      category = lm.category;
-      lm.keyword.split(' ').forEach(w => matchedTokens.add(w));
-      break;
-    }
-  }
+  const defs = MERCHANTS.flatMap(d => d.keywords.map(k => ({ k, d }))).sort(
+    (a, b) => b.k.length - a.k.length,
+  );
 
-  // 2. Built-in dictionary — longest keyword first ("grabfood" beats "grab")
-  if (!merchant) {
-    const defs = MERCHANTS.flatMap(d => d.keywords.map(k => ({ k, d }))).sort(
-      (a, b) => b.k.length - a.k.length,
-    );
-    for (const { k, d } of defs) {
-      if (keywordHit(k, tokens, joined)) {
-        merchant = d.display;
-        category = d.category;
-        k.split(' ').forEach(w => matchedTokens.add(w));
+  // Pass 1: EXACT matches (learned first — user corrections beat the
+  // dictionary). Pass 2: fuzzy matches, only if nothing matched exactly.
+  // This stops "SHOPEE SINGAPORE" fuzzy-matching Singapore Airlines.
+  for (const exact of [true, false]) {
+    for (const lm of learnedSorted) {
+      const hit = exact ? exactHit(lm.keyword, tokens, joined) : fuzzyHit(lm.keyword, tokens);
+      if (hit) {
+        merchant = lm.display;
+        category = lm.category;
+        lm.keyword.split(' ').forEach(w => matchedTokens.add(w));
         break;
       }
     }
+    if (!merchant) {
+      for (const { k, d } of defs) {
+        const hit = exact ? exactHit(k, tokens, joined) : fuzzyHit(k, tokens);
+        if (hit) {
+          merchant = d.display;
+          category = d.category;
+          k.split(' ').forEach(w => matchedTokens.add(w));
+          break;
+        }
+      }
+    }
+    if (merchant) break;
   }
 
   // 3. Explicit category word overrides the merchant's default category
