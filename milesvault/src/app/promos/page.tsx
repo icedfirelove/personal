@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { CARDS, getCard } from '@/data/cards';
+import { CARDS, getCard, type Card } from '@/data/cards';
 import { type SeededPromo } from '@/data/promos';
+import { recommendPromos } from '@/lib/promoRecs';
 import { getPromoFeed, refreshPromoFeed, timeAgo, type PromoFeed } from '@/lib/remotePromos';
 import PullToRefresh from '@/components/PullToRefresh';
 import { loadProfile } from '@/lib/storage';
@@ -19,9 +20,27 @@ import {
 } from '@/lib/spend';
 import BottomNav from '@/components/BottomNav';
 import PageSkeleton from '@/components/PageSkeleton';
+import CardThumb from '@/components/CardThumb';
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-SG', { day: 'numeric', month: 'short', year: 'numeric' });
+
+// ─── Tier badges ──────────────────────────────────────────────
+
+function tierBadges(seed: SeededPromo): { icon: string; label: string; cls: string }[] {
+  const badges: { icon: string; label: string; cls: string }[] = [];
+  const costPerMile = seed.annualFeeSgd > 0 ? (seed.annualFeeSgd / seed.bonusMiles) * 100 : 0;
+
+  if (seed.annualFeeSgd === 0) {
+    badges.push({ icon: '💎', label: 'Free miles', cls: 'text-teal-200 bg-teal-950 border-teal-900' });
+  } else if (costPerMile > 0 && costPerMile < 0.7) {
+    badges.push({ icon: '🔥', label: 'Best value', cls: 'text-amber-200 bg-amber-950 border-amber-900' });
+  }
+  if (seed.minSpendSgd >= 4000) {
+    badges.push({ icon: '🐳', label: 'Big spender', cls: 'text-blue-200 bg-blue-950 border-blue-900' });
+  }
+  return badges.slice(0, 2);
+}
 
 // ─── Active promo card ────────────────────────────────────────
 
@@ -51,8 +70,9 @@ function PromoCard({
 
   return (
     <div className="bg-surface rounded-2xl shadow-sm border border-outline px-4 py-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
+      <div className="flex items-start justify-between gap-3">
+        {card && <CardThumb card={card} />}
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-on-surface">{promo.title}</p>
           <p className="text-xs text-on-surface-variant mt-0.5">{card?.cardName ?? promo.cardId}</p>
         </div>
@@ -129,23 +149,51 @@ function PromoCard({
 
 // ─── Seeded offer row ─────────────────────────────────────────
 
-function SeededRow({ seed, owned, onStart }: { seed: SeededPromo; owned: boolean; onStart: (approvalISO: string) => void }) {
+function SeededRow({
+  seed,
+  owned,
+  reason,
+  onStart,
+}: {
+  seed: SeededPromo;
+  owned: boolean;
+  reason?: string;
+  onStart: (approvalISO: string) => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const [approvalISO, setApprovalISO] = useState(new Date().toISOString().slice(0, 10));
   const card = getCard(seed.cardId);
   const applyByPassed = new Date(seed.applyByISO) < new Date(new Date().toDateString());
   const costPerMile = seed.annualFeeSgd > 0 ? (seed.annualFeeSgd / seed.bonusMiles) * 100 : 0;
+  const badges = tierBadges(seed);
 
   return (
-    <div className="bg-surface rounded-2xl shadow-sm border border-outline overflow-hidden">
+    <div
+      className={`bg-surface rounded-2xl shadow-sm border overflow-hidden ${
+        reason ? 'border-primary/40' : 'border-outline'
+      }`}
+    >
       <button className="w-full px-4 py-3 text-left hover:bg-surface-high transition-colors" onClick={() => setExpanded(e => !e)}>
-        <div className="flex items-center justify-between gap-2">
-          <div className="min-w-0">
+        <div className="flex items-center gap-3">
+          {card && <CardThumb card={card} />}
+          <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-on-surface truncate">{card?.cardName ?? seed.cardId}</p>
             <p className="text-xs text-on-surface-variant truncate">
               ${seed.minSpendSgd.toLocaleString()} spend → {seed.bonusMiles.toLocaleString()} miles
-              {seed.annualFeeSgd > 0 ? ` · $${seed.annualFeeSgd.toFixed(0)} fee` : ' · no fee'}
+              {seed.annualFeeSgd > 0 ? ` · $${seed.annualFeeSgd.toFixed(0)} fee` : ''}
             </p>
+            {badges.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {badges.map(b => (
+                  <span
+                    key={b.label}
+                    className={`text-[9px] font-bold border rounded-full px-1.5 py-0.5 ${b.cls}`}
+                  >
+                    {b.icon} {b.label}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <div className="text-right flex-shrink-0">
             <p className={`text-xs font-bold ${applyByPassed ? 'text-red-500' : 'text-on-surface'}`}>
@@ -157,6 +205,9 @@ function SeededRow({ seed, owned, onStart }: { seed: SeededPromo; owned: boolean
             </p>
           </div>
         </div>
+        {reason && (
+          <p className="text-[11px] text-primary/90 leading-relaxed mt-2">✨ {reason}</p>
+        )}
       </button>
 
       {expanded && (
@@ -274,6 +325,7 @@ export default function PromosPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [myCardIds, setMyCardIds] = useState<string[]>([]);
+  const [incomeBracket, setIncomeBracket] = useState('below-30k');
   const [entries, setEntries] = useState<SpendEntry[]>([]);
   const [promos, setPromos] = useState<ActivePromo[]>([]);
   const [tab, setTab] = useState<'offers' | 'custom'>('offers');
@@ -289,6 +341,7 @@ export default function PromosPage() {
       return;
     }
     setMyCardIds(p.selectedCardIds);
+    setIncomeBracket(p.incomeBracket);
     setEntries(loadSpend());
     setPromos(loadPromos());
     setFeed(getPromoFeed());
@@ -313,6 +366,12 @@ export default function PromosPage() {
 
   const trackedSeedIds = new Set(promos.map(p => p.seedId).filter(Boolean));
   const availableSeeds = feed.promos.filter(s => !trackedSeedIds.has(s.seedId));
+
+  // Personalised picks: wallet (NTB eligibility), income, tracked spend pace
+  const myCards = myCardIds.map(id => getCard(id)).filter((c): c is Card => !!c);
+  const recommended = recommendPromos(availableSeeds, myCards, incomeBracket, entries);
+  const recommendedIds = new Set(recommended.map(r => r.seed.seedId));
+  const otherSeeds = availableSeeds.filter(s => !recommendedIds.has(s.seedId));
 
   function startSeeded(seed: SeededPromo, approvalISO: string) {
     const deadline = new Date(approvalISO);
@@ -416,13 +475,39 @@ export default function PromosPage() {
 
         {tab === 'offers' ? (
           <>
+            {/* Recommended for you */}
+            {recommended.length > 0 && (
+              <div className="mb-6">
+                <p className="text-[11px] font-bold tracking-widest text-primary uppercase mb-2">
+                  ✨ Recommended for you
+                </p>
+                <div className="space-y-2.5">
+                  {recommended.map(rec => (
+                    <SeededRow
+                      key={rec.seed.seedId}
+                      seed={rec.seed}
+                      owned={myCardIds.includes(rec.seed.cardId)}
+                      reason={rec.reason}
+                      onStart={iso => startSeeded(rec.seed, iso)}
+                    />
+                  ))}
+                </div>
+                <p className="text-[10px] text-muted mt-2 leading-relaxed">
+                  Based on your wallet (new-to-bank eligibility), income bracket, and tracked spending pace.
+                </p>
+              </div>
+            )}
+
+            <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">
+              All current offers
+            </p>
             <p className="text-[11px] text-on-surface-variant mb-3 leading-relaxed">
               Verified against MileLion{feed.lastVerified ? ` as of ${fmtDate(feed.lastVerified)}` : ''}. Offers vary
               by channel (direct vs SingSaver) and change monthly — confirm the live T&amp;Cs before applying.
               Pull down to check for updates.
             </p>
             <div className="space-y-2.5">
-              {availableSeeds.map(seed => (
+              {otherSeeds.map(seed => (
                 <SeededRow
                   key={seed.seedId}
                   seed={seed}
