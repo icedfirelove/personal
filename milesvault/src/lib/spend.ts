@@ -332,6 +332,54 @@ export function recommendCards(
   return recs.sort((a, b) => b.milesEarned - a.milesEarned);
 }
 
+// ─── Uncertain-category Recommender ("Not sure" mode) ──────────
+
+export interface UncertainRecommendation {
+  card: Card;
+  scenarioA: Recommendation;   // if it codes as category A
+  scenarioB: Recommendation;   // if it codes as category B
+  worstMiles: number;          // guaranteed miles whichever way it codes
+  bestMiles: number;
+  sameEitherWay: boolean;      // earns (almost) the same in both scenarios
+}
+
+/**
+ * When the user doesn't know how a merchant will code (e.g. a restaurant
+ * inside a hotel: dining vs travel MCC), rank cards by WORST-CASE miles —
+ * the card you can't regret. Cards earning the same either way are the
+ * safest picks and get flagged.
+ */
+export function recommendCardsUncertain(
+  cards: Card[],
+  categoryA: SpendCategory,
+  categoryB: SpendCategory,
+  amountSgd: number,
+  entries: SpendEntry[],
+  settings: UserSettings,
+  now = new Date(),
+): UncertainRecommendation[] {
+  const recsA = recommendCards(cards, categoryA, amountSgd, entries, settings, now);
+  const recsB = recommendCards(cards, categoryB, amountSgd, entries, settings, now);
+  const byIdB = new Map(recsB.map(r => [r.card.id, r]));
+
+  return recsA
+    .map(a => {
+      const b = byIdB.get(a.card.id)!;
+      const worstMiles = Math.min(a.milesEarned, b.milesEarned);
+      const bestMiles = Math.max(a.milesEarned, b.milesEarned);
+      return {
+        card: a.card,
+        scenarioA: a,
+        scenarioB: b,
+        worstMiles,
+        bestMiles,
+        // "same" within 5% — covers rounding and tiny cap differences
+        sameEitherWay: bestMiles === 0 || worstMiles / bestMiles >= 0.95,
+      };
+    })
+    .sort((x, y) => y.worstMiles - x.worstMiles || y.bestMiles - x.bestMiles);
+}
+
 // ─── Promos ────────────────────────────────────────────────────
 
 export function loadPromos(): ActivePromo[] {

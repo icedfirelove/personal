@@ -274,20 +274,15 @@ function keywordHit(keyword: string, tokens: string[], joined: string): boolean 
   );
 }
 
-export function parseTransaction(
-  text: string,
-  myCards: Card[],
-  learned: LearnedMerchant[] = loadLearnedMerchants(),
-): ParseResult {
-  const tokens = normalise(text);
-  const joined = ` ${tokens.join(' ')} `.replace(/\s+/g, ' ').trim();
-
-  const amountSgd = extractAmount(text);
-
-  // ── Merchant + category ──
+/** Shared merchant + category matching used by parseTransaction and resolveMerchant. */
+function matchMerchant(
+  tokens: string[],
+  joined: string,
+  learned: LearnedMerchant[],
+): { merchant: string | null; category: SpendCategory | null; matchedTokens: Set<string> } {
   let merchant: string | null = null;
   let category: SpendCategory | null = null;
-  const matchedKeywordTokens = new Set<string>();
+  const matchedTokens = new Set<string>();
 
   // 1. Learned merchants first (user corrections beat the built-in dictionary)
   const learnedSorted = [...learned].sort((a, b) => b.keyword.length - a.keyword.length);
@@ -295,7 +290,7 @@ export function parseTransaction(
     if (keywordHit(lm.keyword, tokens, joined)) {
       merchant = lm.display;
       category = lm.category;
-      lm.keyword.split(' ').forEach(w => matchedKeywordTokens.add(w));
+      lm.keyword.split(' ').forEach(w => matchedTokens.add(w));
       break;
     }
   }
@@ -309,7 +304,7 @@ export function parseTransaction(
       if (keywordHit(k, tokens, joined)) {
         merchant = d.display;
         category = d.category;
-        k.split(' ').forEach(w => matchedKeywordTokens.add(w));
+        k.split(' ').forEach(w => matchedTokens.add(w));
         break;
       }
     }
@@ -319,10 +314,63 @@ export function parseTransaction(
   for (const t of tokens) {
     if (CATEGORY_WORDS[t]) {
       category = CATEGORY_WORDS[t];
-      matchedKeywordTokens.add(t);
+      matchedTokens.add(t);
       break;
     }
   }
+
+  return { merchant, category, matchedTokens };
+}
+
+function genericHint(tokens: string[]): SpendCategory | null {
+  for (const t of tokens) {
+    for (const [stem, cat] of GENERIC_HINTS) {
+      if (t.includes(stem)) return cat;
+    }
+  }
+  return null;
+}
+
+export interface MerchantResolution {
+  merchant: string | null;
+  category: SpendCategory | null;
+}
+
+/**
+ * Merchant-only lookup (no amount/card parsing) — powers the Swipe tab's
+ * search box. "din tai fung" → { merchant: 'Din Tai Fung', category: 'dining' }.
+ */
+export function resolveMerchant(
+  text: string,
+  learned: LearnedMerchant[] = loadLearnedMerchants(),
+): MerchantResolution {
+  const tokens = normalise(text);
+  const joined = ` ${tokens.join(' ')} `.replace(/\s+/g, ' ').trim();
+  const m = matchMerchant(tokens, joined, learned);
+  let category = m.category;
+  let merchant = m.merchant;
+  if (!category) category = genericHint(tokens);
+  if (!merchant && tokens.length > 0) {
+    merchant = tokens.join(' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+  return { merchant, category };
+}
+
+export function parseTransaction(
+  text: string,
+  myCards: Card[],
+  learned: LearnedMerchant[] = loadLearnedMerchants(),
+): ParseResult {
+  const tokens = normalise(text);
+  const joined = ` ${tokens.join(' ')} `.replace(/\s+/g, ' ').trim();
+
+  const amountSgd = extractAmount(text);
+
+  // ── Merchant + category ──
+  const matched = matchMerchant(tokens, joined, learned);
+  let merchant = matched.merchant;
+  let category = matched.category;
+  const matchedKeywordTokens = matched.matchedTokens;
 
   // ── Card matching against the user's wallet ──
   const spendable = myCards.filter(c => !c.isAmazePairingCard);

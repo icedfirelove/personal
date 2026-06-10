@@ -6,15 +6,17 @@ import Image from 'next/image';
 import { getCard, type Card } from '@/data/cards';
 import { loadProfile } from '@/lib/storage';
 import { CATEGORIES, categoryMeta, type SpendCategory } from '@/lib/categories';
+import { parseTransaction, learnMerchant, type ParseResult } from '@/lib/parser';
 import {
   loadSpend,
   addSpend,
-  deleteSpend,
   loadSettings,
   recommendCards,
+  recommendCardsUncertain,
   type SpendEntry,
   type UserSettings,
   type Recommendation,
+  type UncertainRecommendation,
 } from '@/lib/spend';
 import BottomNav from '@/components/BottomNav';
 
@@ -47,19 +49,19 @@ function CardThumb({ card }: { card: Card }) {
   );
 }
 
-// ─── Recommendation row ───────────────────────────────────────
+// ─── Single-category result row ───────────────────────────────
 
 function RecRow({
   rec,
   rank,
   amount,
-  onLog,
+  onUse,
   logged,
 }: {
   rec: Recommendation;
   rank: number;
   amount: number;
-  onLog: () => void;
+  onUse: () => void;
   logged: boolean;
 }) {
   const best = rank === 0;
@@ -114,7 +116,7 @@ function RecRow({
           )}
           {amount > 0 && (
             <button
-              onClick={onLog}
+              onClick={onUse}
               disabled={logged}
               className={`mt-1.5 text-[11px] font-bold rounded-full px-3 py-1 transition-colors ${
                 logged
@@ -122,7 +124,84 @@ function RecRow({
                   : 'bg-primary text-on-primary hover:bg-primary-hover'
               }`}
             >
-              {logged ? '✓ Logged' : 'Log swipe'}
+              {logged ? '✓ Logged' : 'I used this'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Not-sure (dual-category) result row ──────────────────────
+
+function UncertainRow({
+  rec,
+  rank,
+  catA,
+  catB,
+  amount,
+  onUse,
+  logged,
+}: {
+  rec: UncertainRecommendation;
+  rank: number;
+  catA: SpendCategory;
+  catB: SpendCategory;
+  amount: number;
+  onUse: () => void;
+  logged: boolean;
+}) {
+  const best = rank === 0;
+  const worstMpd = amount > 0 ? rec.worstMiles / amount : 0;
+  return (
+    <div
+      className={`bg-surface rounded-2xl border overflow-hidden ${
+        best ? 'border-primary shadow-md' : 'border-outline shadow-sm'
+      }`}
+    >
+      {best && (
+        <div className="bg-primary text-on-primary text-[10px] font-bold tracking-widest uppercase px-4 py-1">
+          Safest card for this swipe
+        </div>
+      )}
+      <div className="flex items-center gap-3 px-4 py-3">
+        <CardThumb card={rec.card} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-semibold text-on-surface truncate">{rec.card.cardName}</p>
+            {rec.sameEitherWay && (
+              <span className="flex-shrink-0 text-[9px] font-bold text-green-300 bg-green-950 border border-green-800 rounded-full px-1.5 py-0.5">
+                Safe either way
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] text-on-surface-variant mt-0.5">
+            {categoryMeta(catA).label}: {rec.scenarioA.effectiveMpd.toFixed(1)} mpd ·{' '}
+            {categoryMeta(catB).label}: {rec.scenarioB.effectiveMpd.toFixed(1)} mpd
+          </p>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <p className="text-base font-bold text-on-surface">
+            {worstMpd.toFixed(2)}
+            <span className="text-[10px] font-semibold text-on-surface-variant"> mpd min</span>
+          </p>
+          {amount > 0 && (
+            <p className="text-[11px] text-muted">
+              ≥ {Math.round(rec.worstMiles).toLocaleString()} miles
+            </p>
+          )}
+          {amount > 0 && (
+            <button
+              onClick={onUse}
+              disabled={logged}
+              className={`mt-1.5 text-[11px] font-bold rounded-full px-3 py-1 transition-colors ${
+                logged
+                  ? 'bg-green-950 text-green-300 border border-green-800'
+                  : 'bg-primary text-on-primary hover:bg-primary-hover'
+              }`}
+            >
+              {logged ? '✓ Logged' : 'I used this'}
             </button>
           )}
         </div>
@@ -139,8 +218,10 @@ export default function RecommendPage() {
   const [myCards, setMyCards] = useState<Card[]>([]);
   const [entries, setEntries] = useState<SpendEntry[]>([]);
   const [settings, setSettings] = useState<UserSettings>({ statementDays: {} });
-  const [category, setCategory] = useState<SpendCategory>('online');
-  const [amountStr, setAmountStr] = useState('');
+  const [text, setText] = useState('');
+  const [chosenCategory, setChosenCategory] = useState<SpendCategory | null>(null);
+  const [notSure, setNotSure] = useState(false);
+  const [dualCats, setDualCats] = useState<SpendCategory[]>(['dining', 'travel']);
   const [loggedCardId, setLoggedCardId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -155,35 +236,62 @@ export default function RecommendPage() {
     setSettings(loadSettings());
   }, [router]);
 
-  const amount = parseFloat(amountStr) || 0;
+  const parsed: ParseResult | null = useMemo(
+    () => (text.trim() ? parseTransaction(text, myCards) : null),
+    [text, myCards],
+  );
+
+  const amount = parsed?.amountSgd ?? 0;
+  const category: SpendCategory = chosenCategory ?? parsed?.category ?? 'general';
+  const categoryKnown = !!(chosenCategory ?? parsed?.category);
 
   const recs = useMemo(
-    () => (myCards.length ? recommendCards(myCards, category, amount || 100, entries, settings) : []),
-    [myCards, category, amount, entries, settings],
+    () =>
+      myCards.length && !notSure
+        ? recommendCards(myCards, category, amount || 100, entries, settings)
+        : [],
+    [myCards, category, amount, entries, settings, notSure],
   );
 
-  const recent = useMemo(
-    () => [...entries].sort((a, b) => b.dateISO.localeCompare(a.dateISO)).slice(0, 8),
-    [entries],
+  const uncertainRecs = useMemo(
+    () =>
+      myCards.length && notSure && dualCats.length === 2
+        ? recommendCardsUncertain(myCards, dualCats[0], dualCats[1], amount || 100, entries, settings)
+        : [],
+    [myCards, notSure, dualCats, amount, entries, settings],
   );
 
-  function handleLog(cardId: string) {
+  function toggleDualCat(cat: SpendCategory) {
+    setDualCats(prev =>
+      prev.includes(cat)
+        ? prev.filter(c => c !== cat)
+        : [...prev.slice(-1), cat], // keep last picked + new one
+    );
+  }
+
+  function logUse(cardId: string, logCategory: SpendCategory) {
     if (amount <= 0) return;
+    // Learn: user explicitly picked a category for an unknown merchant
+    if (chosenCategory && parsed?.leftoverText) {
+      learnMerchant(parsed.leftoverText, chosenCategory);
+    }
     setEntries(
       addSpend({
         cardId,
-        category,
+        category: logCategory,
         amountSgd: amount,
         dateISO: new Date().toISOString(),
         source: 'recommender',
+        note: parsed?.merchant ?? undefined,
       }),
     );
     setLoggedCardId(cardId);
-    setTimeout(() => setLoggedCardId(null), 2500);
-  }
-
-  function handleDelete(id: string) {
-    setEntries(deleteSpend(id));
+    setTimeout(() => {
+      setLoggedCardId(null);
+      setText('');
+      setChosenCategory(null);
+      setNotSure(false);
+    }, 1800);
   }
 
   if (!mounted) {
@@ -194,59 +302,21 @@ export default function RecommendPage() {
     );
   }
 
+  const catMeta = categoryMeta(category);
+
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Top nav */}
       <div className="sticky top-0 z-20 bg-surface border-b border-outline px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-lg font-bold text-on-surface">Which card do I swipe?</h1>
-          <p className="text-xs text-on-surface-variant">Cap-aware ranking across your {myCards.length} cards</p>
+          <p className="text-xs text-on-surface-variant">
+            Type it, pick the best card, and it&apos;s logged — one motion
+          </p>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 pt-5">
-        {/* Category picker */}
-        <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">
-          What are you paying for?
-        </p>
-        <div className="flex gap-1.5 overflow-x-auto pb-2 -mx-4 px-4">
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat.value}
-              onClick={() => setCategory(cat.value)}
-              className={`flex-shrink-0 flex items-center gap-1 text-[11px] font-semibold rounded-full px-3 py-1.5 transition-colors ${
-                category === cat.value
-                  ? 'bg-primary text-on-primary'
-                  : 'bg-surface-high text-on-surface-variant hover:bg-surface-bright'
-              }`}
-            >
-              <span>{cat.icon}</span>
-              <span>{cat.label}</span>
-            </button>
-          ))}
-        </div>
-        <p className="text-[11px] text-on-surface-variant mb-4">{categoryMeta(category).hint}</p>
-
-        {/* Amount */}
-        <div className="bg-surface rounded-2xl shadow-sm border border-outline px-4 py-3 flex items-center gap-3 mb-5">
-          <span className="text-sm font-bold text-on-surface-variant">S$</span>
-          <input
-            type="number"
-            inputMode="decimal"
-            min="0"
-            placeholder="Amount (optional — affects cap math)"
-            value={amountStr}
-            onChange={e => setAmountStr(e.target.value)}
-            className="flex-1 text-base font-semibold text-on-surface placeholder:text-muted placeholder:text-sm placeholder:font-normal outline-none"
-          />
-          {amountStr && (
-            <button onClick={() => setAmountStr('')} className="text-xs text-on-surface-variant hover:text-on-surface">
-              Clear
-            </button>
-          )}
-        </div>
-
-        {/* Results */}
         {myCards.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-4xl mb-3">💳</p>
@@ -259,57 +329,127 @@ export default function RecommendPage() {
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
-            {recs.map((rec, i) => (
-              <RecRow
-                key={rec.card.id}
-                rec={rec}
-                rank={i}
-                amount={amount}
-                onLog={() => handleLog(rec.card.id)}
-                logged={loggedCardId === rec.card.id}
+          <>
+            {/* Smart input */}
+            <div className="bg-surface rounded-2xl shadow-sm border border-outline p-4 mb-4">
+              <input
+                type="text"
+                placeholder='Try "$85 din tai fung" or "120 hotel restaurant"'
+                value={text}
+                onChange={e => {
+                  setText(e.target.value);
+                  setChosenCategory(null);
+                }}
+                className="w-full text-base font-medium text-on-surface placeholder:text-muted placeholder:text-sm outline-none"
               />
-            ))}
-            {amount === 0 && (
-              <p className="text-[11px] text-on-surface-variant text-center">
-                Ranked assuming a $100 swipe. Enter the actual amount for exact cap-aware miles, then log it.
-              </p>
-            )}
-          </div>
-        )}
 
-        {/* Recent activity */}
-        {recent.length > 0 && (
-          <div className="mt-8">
-            <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">
-              Recent logged spend
-            </p>
-            <div className="bg-surface rounded-2xl shadow-sm border border-outline divide-y divide-outline">
-              {recent.map(e => {
-                const card = getCard(e.cardId);
-                const meta = categoryMeta(e.category);
-                return (
-                  <div key={e.id} className="flex items-center gap-3 px-4 py-2.5">
-                    <span className="text-base">{meta.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-on-surface truncate">
-                        ${e.amountSgd.toLocaleString()} · {card?.cardName ?? e.cardId}
-                      </p>
-                      <p className="text-[10px] text-on-surface-variant">
-                        {meta.label} · {new Date(e.dateISO).toLocaleDateString('en-SG', { day: 'numeric', month: 'short' })}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleDelete(e.id)}
-                      className="text-[10px] text-muted hover:text-red-500 font-semibold"
+              {parsed && (
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  <span
+                    className={`text-[11px] font-bold rounded-full px-2.5 py-1 ${
+                      amount > 0 ? 'bg-primary text-on-primary' : 'bg-amber-950 text-amber-300 border border-amber-900'
+                    }`}
+                  >
+                    {amount > 0 ? `S$${amount.toLocaleString()}` : 'Amount? (needed to log)'}
+                  </span>
+                  {parsed.merchant && (
+                    <span className="text-[11px] font-semibold rounded-full px-2.5 py-1 bg-surface-high text-on-surface">
+                      {catMeta.icon} {parsed.merchant}
+                    </span>
+                  )}
+                  {!notSure && (
+                    <span
+                      className={`text-[11px] font-semibold rounded-full px-2.5 py-1 ${
+                        categoryKnown
+                          ? 'bg-teal-950 text-teal-200 border border-teal-900'
+                          : 'bg-amber-950 text-amber-300 border border-amber-900'
+                      }`}
                     >
-                      Remove
-                    </button>
-                  </div>
+                      {categoryKnown ? `→ ${catMeta.label}` : 'Category? Pick below or 🤷'}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Category chips + Not sure */}
+            <div className="flex gap-1.5 overflow-x-auto pb-2 -mx-4 px-4">
+              <button
+                onClick={() => setNotSure(s => !s)}
+                className={`flex-shrink-0 flex items-center gap-1 text-[11px] font-semibold rounded-full px-3 py-1.5 transition-colors ${
+                  notSure ? 'bg-primary text-on-primary' : 'bg-surface-high text-on-surface-variant hover:bg-surface-bright'
+                }`}
+              >
+                <span>🤷</span>
+                <span>Not sure</span>
+              </button>
+              {CATEGORIES.map(cat => {
+                const active = notSure ? dualCats.includes(cat.value) : !notSure && category === cat.value && categoryKnown;
+                return (
+                  <button
+                    key={cat.value}
+                    onClick={() => {
+                      if (notSure) toggleDualCat(cat.value);
+                      else setChosenCategory(cat.value);
+                    }}
+                    className={`flex-shrink-0 flex items-center gap-1 text-[11px] font-semibold rounded-full px-3 py-1.5 transition-colors ${
+                      active ? 'bg-primary text-on-primary' : 'bg-surface-high text-on-surface-variant hover:bg-surface-bright'
+                    }`}
+                  >
+                    <span>{cat.icon}</span>
+                    <span>{cat.label}</span>
+                  </button>
                 );
               })}
             </div>
-          </div>
+            <p className="text-[11px] text-muted mb-4">
+              {notSure
+                ? `Pick the two ways it might code (now: ${dualCats.map(c => categoryMeta(c).label).join(' vs ')}). Ranked by guaranteed miles — e.g. a hotel restaurant can code as either.`
+                : categoryKnown
+                  ? catMeta.hint
+                  : 'Unknown merchant — pick a category, or tap 🤷 Not sure if it could code two ways.'}
+            </p>
+
+            {/* Results */}
+            <div className="space-y-3">
+              {notSure
+                ? uncertainRecs.map((rec, i) => (
+                    <UncertainRow
+                      key={rec.card.id}
+                      rec={rec}
+                      rank={i}
+                      catA={dualCats[0]}
+                      catB={dualCats[1]}
+                      amount={amount}
+                      logged={loggedCardId === rec.card.id}
+                      onUse={() =>
+                        logUse(
+                          rec.card.id,
+                          // log conservatively under the worse-paying scenario
+                          rec.scenarioA.milesEarned <= rec.scenarioB.milesEarned ? dualCats[0] : dualCats[1],
+                        )
+                      }
+                    />
+                  ))
+                : recs.map((rec, i) => (
+                    <RecRow
+                      key={rec.card.id}
+                      rec={rec}
+                      rank={i}
+                      amount={amount}
+                      logged={loggedCardId === rec.card.id}
+                      onUse={() => logUse(rec.card.id, category)}
+                    />
+                  ))}
+            </div>
+
+            {amount === 0 && (
+              <p className="text-[11px] text-muted text-center mt-3">
+                Ranked assuming a $100 swipe. Include the amount (e.g. &ldquo;$85 din tai fung&rdquo;) to get exact
+                miles and one-tap logging.
+              </p>
+            )}
+          </>
         )}
       </div>
 
