@@ -28,6 +28,7 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-space-grotesk);
 }
 
 body {
@@ -50,6 +51,29 @@ button, a, select, input {
 
 .nav-safe {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Splash screen entrance choreography */
+.splash-logo {
+  animation: splash-pop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.splash-wordmark {
+  animation: splash-rise 0.55s 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.splash-tag {
+  animation: splash-rise 0.55s 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes splash-pop {
+  from { opacity: 0; transform: scale(0.72) translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes splash-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* Smooth card expand animation */
