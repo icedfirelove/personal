@@ -61,7 +61,7 @@ function SmartInput({
   const catMeta = categoryMeta(resolvedCategory);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 p-4">
       <input
         type="text"
         placeholder='Try "$300 shopee ocbc" or "45 dinner uob yesterday"'
@@ -72,7 +72,7 @@ function SmartInput({
           setChosenCategory(null);
         }}
         onKeyDown={e => e.key === 'Enter' && canAdd && handleAdd()}
-        className="w-full text-base font-medium text-gray-900 placeholder:text-gray-300 placeholder:text-sm outline-none"
+        className="w-full text-base font-medium text-gray-100 placeholder:text-gray-600 placeholder:text-sm outline-none"
       />
 
       {parsed && (
@@ -81,23 +81,23 @@ function SmartInput({
           <div className="flex flex-wrap gap-1.5">
             <span
               className={`text-[11px] font-bold rounded-full px-2.5 py-1 ${
-                parsed.amountSgd ? 'bg-gray-900 text-white' : 'bg-red-50 text-red-600 border border-red-100'
+                parsed.amountSgd ? 'bg-gray-100 text-gray-900' : 'bg-red-950 text-red-400 border border-red-900'
               }`}
             >
               {parsed.amountSgd ? `S$${parsed.amountSgd.toLocaleString()}` : 'Amount?'}
             </span>
             <span
               className={`text-[11px] font-semibold rounded-full px-2.5 py-1 ${
-                resolvedCard ? 'bg-teal-50 text-teal-800 border border-teal-100' : 'bg-amber-50 text-amber-700 border border-amber-100'
+                resolvedCard ? 'bg-teal-950 text-teal-200 border border-teal-900' : 'bg-amber-950 text-amber-300 border border-amber-900'
               }`}
             >
               {resolvedCard ? `💳 ${resolvedCard.cardName}` : ambiguous ? 'Which card?' : 'Card?'}
             </span>
-            <span className="text-[11px] font-semibold rounded-full px-2.5 py-1 bg-gray-100 text-gray-700">
+            <span className="text-[11px] font-semibold rounded-full px-2.5 py-1 bg-gray-800 text-gray-300">
               {catMeta.icon} {parsed.merchant ? `${parsed.merchant} · ` : ''}{catMeta.label}
             </span>
             {parsed.dateISO.slice(0, 10) !== todayISO && (
-              <span className="text-[11px] font-semibold rounded-full px-2.5 py-1 bg-gray-100 text-gray-700">
+              <span className="text-[11px] font-semibold rounded-full px-2.5 py-1 bg-gray-800 text-gray-300">
                 🗓 Yesterday
               </span>
             )}
@@ -114,7 +114,7 @@ function SmartInput({
                   <button
                     key={c.id}
                     onClick={() => setChosenCardId(c.id)}
-                    className="text-[11px] font-semibold rounded-full px-3 py-1.5 bg-gray-100 text-gray-700 hover:bg-gray-900 hover:text-white transition-colors"
+                    className="text-[11px] font-semibold rounded-full px-3 py-1.5 bg-gray-800 text-gray-300 hover:bg-gray-100 hover:text-gray-900 transition-colors"
                   >
                     {c.cardName}
                   </button>
@@ -125,7 +125,7 @@ function SmartInput({
 
           {/* Category correction */}
           <details className="group">
-            <summary className="text-[10px] font-semibold text-gray-400 cursor-pointer list-none hover:text-gray-600">
+            <summary className="text-[10px] font-semibold text-gray-400 cursor-pointer list-none hover:text-gray-300">
               Wrong category? Tap to change ▾
             </summary>
             <div className="flex flex-wrap gap-1.5 mt-1.5">
@@ -135,8 +135,8 @@ function SmartInput({
                   onClick={() => setChosenCategory(cat.value)}
                   className={`text-[11px] font-semibold rounded-full px-2.5 py-1 transition-colors ${
                     resolvedCategory === cat.value
-                      ? 'bg-gray-900 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                   }`}
                 >
                   {cat.icon} {cat.label}
@@ -144,7 +144,7 @@ function SmartInput({
               ))}
             </div>
             {chosenCategory && parsed.leftoverText && (
-              <p className="text-[10px] text-teal-600 font-medium mt-1.5">
+              <p className="text-[10px] text-teal-400 font-medium mt-1.5">
                 ✓ I&apos;ll remember &ldquo;{parsed.leftoverText}&rdquo; = {categoryMeta(chosenCategory).label} next time
               </p>
             )}
@@ -153,7 +153,7 @@ function SmartInput({
           <button
             onClick={handleAdd}
             disabled={!canAdd}
-            className="w-full py-3 rounded-2xl bg-gray-900 text-white font-semibold text-sm disabled:opacity-30 hover:bg-gray-800 transition-colors"
+            className="w-full py-3 rounded-2xl bg-gray-100 text-gray-900 font-semibold text-sm disabled:opacity-30 hover:bg-gray-300 transition-colors"
           >
             {canAdd
               ? `Log S$${parsed.amountSgd!.toLocaleString()} on ${resolvedCard!.cardName}`
@@ -204,8 +204,8 @@ export default function TransactionsPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <div className="w-8 h-8 border-2 border-gray-700 border-t-gray-100 rounded-full animate-spin" />
       </div>
     );
   }
@@ -217,11 +217,11 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-950 pb-20">
       {/* Top nav */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-4">
+      <div className="sticky top-0 z-20 bg-gray-900 border-b border-gray-800 px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-lg font-bold text-gray-900">Transactions</h1>
+          <h1 className="text-lg font-bold text-gray-100">Transactions</h1>
           <p className="text-xs text-gray-400">Type it like you&apos;d say it — amount, merchant, card</p>
         </div>
       </div>
@@ -241,7 +241,7 @@ export default function TransactionsPage() {
                 <p className="text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-2">
                   {fmtDay(g.date)}
                 </p>
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 divide-y divide-gray-50">
+                <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 divide-y divide-gray-800">
                   {g.items.map(e => {
                     const card = getCard(e.cardId);
                     const meta = categoryMeta(e.category);
@@ -249,7 +249,7 @@ export default function TransactionsPage() {
                       <div key={e.id} className="flex items-center gap-3 px-4 py-3">
                         <span className="text-lg">{meta.icon}</span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">
+                          <p className="text-sm font-semibold text-gray-100 truncate">
                             {e.note ?? meta.label}
                           </p>
                           <p className="text-[11px] text-gray-400 truncate">
@@ -257,12 +257,12 @@ export default function TransactionsPage() {
                           </p>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <p className="text-sm font-bold text-gray-900">
+                          <p className="text-sm font-bold text-gray-100">
                             ${e.amountSgd.toLocaleString()}
                           </p>
                           <button
                             onClick={() => setEntries(deleteSpend(e.id))}
-                            className="text-[10px] text-gray-300 hover:text-red-500 font-semibold"
+                            className="text-[10px] text-gray-600 hover:text-red-500 font-semibold"
                           >
                             Remove
                           </button>

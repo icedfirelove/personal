@@ -191,6 +191,22 @@ const BANK_ALIASES: Record<string, string> = {
   instarem: 'Instarem', amaze: 'Instarem',
 };
 
+/**
+ * Generic word stems that hint at a category when the merchant itself is
+ * unknown ("$12 kopi cafe near office" → dining). Substring match against
+ * leftover tokens, so "rooftop-bar" or "cafes" still hit.
+ */
+const GENERIC_HINTS: [string, SpendCategory][] = [
+  ['cafe', 'dining'], ['coffee', 'dining'], ['bakery', 'dining'], ['bistro', 'dining'],
+  ['grill', 'dining'], ['ramen', 'dining'], ['noodle', 'dining'], ['eatery', 'dining'],
+  ['kitchen', 'dining'], ['dessert', 'dining'], ['kopitiam', 'dining'], ['seafood', 'dining'],
+  ['steamboat', 'dining'], ['hotpot', 'dining'], ['izakaya', 'dining'], ['bites', 'dining'],
+  ['resort', 'travel'], ['airline', 'travel'], ['airways', 'travel'], ['cruise', 'travel'],
+  ['boutique', 'shopping'], ['outlet', 'shopping'],
+  ['minimart', 'contactless'], ['market', 'contactless'],
+  ['pharmacy', 'general'], ['dental', 'general'], ['hospital', 'general'],
+];
+
 // Shorthand the miles community uses for card names → substring of the real name
 const CARD_NAME_ALIASES: Record<string, string> = {
   ppv: 'preferred platinum',
@@ -364,6 +380,19 @@ export function parseTransaction(
   // No dictionary hit but there are leftover words → use them as the merchant label
   if (!merchant && leftoverText) {
     merchant = leftoverText.replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  // Still no category? Look for generic stems in the leftover words
+  // ("cafe", "bakery", "resort") before falling back to Everything else.
+  if (!category && leftoverTokens.length > 0) {
+    outer: for (const t of leftoverTokens) {
+      for (const [stem, cat] of GENERIC_HINTS) {
+        if (t.includes(stem)) {
+          category = cat;
+          break outer;
+        }
+      }
+    }
   }
 
   const dateISO = tokens.includes('yesterday')

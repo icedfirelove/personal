@@ -21,9 +21,9 @@ import BottomNav from '@/components/BottomNav';
 // ─── Alerts ───────────────────────────────────────────────────
 
 const ALERT_STYLES: Record<Alert['severity'], { box: string; title: string; body: string }> = {
-  urgent: { box: 'bg-red-50 border-red-100',     title: 'text-red-800',   body: 'text-red-700' },
-  warn:   { box: 'bg-amber-50 border-amber-100', title: 'text-amber-800', body: 'text-amber-700' },
-  info:   { box: 'bg-blue-50 border-blue-100',   title: 'text-blue-800',  body: 'text-blue-700' },
+  urgent: { box: 'bg-red-950 border-red-900',     title: 'text-red-200',   body: 'text-red-300' },
+  warn:   { box: 'bg-amber-950 border-amber-900', title: 'text-amber-200', body: 'text-amber-300' },
+  info:   { box: 'bg-blue-950 border-blue-900',   title: 'text-blue-200',  body: 'text-blue-300' },
 };
 
 function AlertsSection({ alerts }: { alerts: Alert[] }) {
@@ -53,7 +53,7 @@ function SummaryRow({ summary }: { summary: CardPeriodSummary }) {
   const { card } = summary;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3.5">
+    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 px-4 py-3.5">
       <div className="flex items-center gap-3">
         {/* Thumbnail */}
         <div
@@ -80,7 +80,7 @@ function SummaryRow({ summary }: { summary: CardPeriodSummary }) {
 
         {/* Name + spend */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate">{card.cardName}</p>
+          <p className="text-sm font-semibold text-gray-100 truncate">{card.cardName}</p>
           <p className="text-[11px] text-gray-400">
             ${Math.round(summary.spentSgd).toLocaleString()} spent this period
           </p>
@@ -88,7 +88,7 @@ function SummaryRow({ summary }: { summary: CardPeriodSummary }) {
 
         {/* Miles */}
         <div className="text-right flex-shrink-0">
-          <p className="text-base font-bold text-gray-900">
+          <p className="text-base font-bold text-gray-100">
             {Math.round(summary.milesEarned).toLocaleString()}
             <span className="text-[10px] font-semibold text-gray-400"> mi</span>
           </p>
@@ -108,19 +108,19 @@ function SummaryRow({ summary }: { summary: CardPeriodSummary }) {
                   <span className="text-[10px] text-gray-400 truncate pr-2">
                     {g.mpd} mpd · {g.labels.join(' / ')}
                   </span>
-                  <span className={`text-[10px] font-bold flex-shrink-0 ${pct >= 100 ? 'text-red-600' : 'text-gray-600'}`}>
+                  <span className={`text-[10px] font-bold flex-shrink-0 ${pct >= 100 ? 'text-red-400' : 'text-gray-400'}`}>
                     {pct >= 100
                       ? 'Cap hit'
                       : `$${Math.round(g.remainingSgd).toLocaleString()} to cap`}
                   </span>
                 </div>
-                <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
                   <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
                 </div>
               </div>
             );
           })}
-          <p className="text-[10px] text-gray-300">Resets in {summary.resetInDays} day{summary.resetInDays === 1 ? '' : 's'}</p>
+          <p className="text-[10px] text-gray-600">Resets in {summary.resetInDays} day{summary.resetInDays === 1 ? '' : 's'}</p>
         </div>
       )}
     </div>
@@ -159,23 +159,23 @@ export default function OverviewPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <div className="w-8 h-8 border-2 border-gray-700 border-t-gray-100 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-950 pb-20">
       {/* Top nav */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-4">
+      <div className="sticky top-0 z-20 bg-gray-900 border-b border-gray-800 px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-gray-900">Overview</h1>
+            <h1 className="text-lg font-bold text-gray-100">Overview</h1>
             <p className="text-xs text-gray-400">Your miles & caps this period</p>
           </div>
           <div className="text-right">
-            <p className="text-base font-bold text-gray-900">
+            <p className="text-base font-bold text-gray-100">
               {Math.round(totals.miles).toLocaleString()}
               <span className="text-[10px] font-semibold text-gray-400"> mi</span>
             </p>
@@ -190,13 +190,13 @@ export default function OverviewPage() {
         {summaries.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-4xl mb-4">💳</p>
-            <h2 className="text-base font-semibold text-gray-900 mb-2">No cards yet</h2>
+            <h2 className="text-base font-semibold text-gray-100 mb-2">No cards yet</h2>
             <p className="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
               Add your cards in the Vault tab to start tracking miles and caps.
             </p>
             <button
               onClick={() => router.push('/onboarding/cards')}
-              className="px-6 py-3 rounded-2xl bg-gray-900 text-white font-semibold text-sm hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 rounded-2xl bg-gray-100 text-gray-900 font-semibold text-sm hover:bg-gray-300 transition-colors"
             >
               Add cards
             </button>

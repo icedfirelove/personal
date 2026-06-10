@@ -23,7 +23,7 @@ function CardPickerTile({
       className={`relative flex flex-col rounded-2xl overflow-hidden border-2 transition-all duration-150 text-left w-full
         ${isSelected
           ? 'border-gray-900 shadow-md scale-[1.02]'
-          : 'border-transparent shadow-sm hover:border-gray-300 hover:shadow-md'
+          : 'border-transparent shadow-sm hover:border-gray-700 hover:shadow-md'
         }`}
     >
       {/* Card image or CSS fallback */}
@@ -66,8 +66,8 @@ function CardPickerTile({
       </div>
 
       {/* Card info */}
-      <div className="bg-white px-3 py-2.5 flex-1">
-        <p className="text-xs font-semibold text-gray-900 leading-tight truncate">{card.cardName}</p>
+      <div className="bg-gray-900 px-3 py-2.5 flex-1">
+        <p className="text-xs font-semibold text-gray-100 leading-tight truncate">{card.cardName}</p>
         <p className="text-xs text-gray-400 mt-0.5 leading-tight line-clamp-2">{card.tagline}</p>
       </div>
     </button>
@@ -115,9 +115,9 @@ export default function CardsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-950 flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-gray-50/95 backdrop-blur-sm border-b border-gray-100 px-4 pt-10 pb-3">
+      <div className="sticky top-0 z-20 bg-gray-950/95 backdrop-blur-sm border-b border-gray-800 px-4 pb-3 pt-[calc(2rem+env(safe-area-inset-top))]">
         <div className="max-w-3xl mx-auto">
           <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-3">
             Step 2 of 2
@@ -128,11 +128,11 @@ export default function CardsPage() {
           </div>
           <div className="flex items-end justify-between mb-3">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Which cards do you own?</h1>
+              <h1 className="text-xl font-bold text-gray-100">Which cards do you own?</h1>
               <p className="text-xs text-gray-500 mt-0.5">Select all that apply.</p>
             </div>
             {selectedIds.length > 0 && (
-              <span className="text-xs font-semibold text-gray-900 bg-gray-200 rounded-full px-2.5 py-1">
+              <span className="text-xs font-semibold text-gray-100 bg-gray-200 rounded-full px-2.5 py-1">
                 {selectedIds.length} selected
               </span>
             )}
@@ -148,7 +148,7 @@ export default function CardsPage() {
               placeholder="Search cards..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-gray-900 border border-gray-700 text-sm text-gray-100 placeholder:text-gray-400 focus:outline-none focus:border-gray-400"
             />
           </div>
 
@@ -160,8 +160,8 @@ export default function CardsPage() {
                 onClick={() => setActiveBank(bank)}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                   activeBank === bank
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-400'
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-gray-500'
                 }`}
               >
                 {bank}
@@ -192,18 +192,18 @@ export default function CardsPage() {
       </div>
 
       {/* Fixed bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 bg-gray-50/95 backdrop-blur-sm border-t border-gray-100 px-4 py-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-950/95 backdrop-blur-sm border-t border-gray-800 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <div className="max-w-3xl mx-auto flex gap-3">
           <button
             onClick={() => router.back()}
-            className="px-5 py-3.5 rounded-2xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:border-gray-400 transition-colors"
+            className="px-5 py-3.5 rounded-2xl border-2 border-gray-700 text-gray-300 font-semibold text-sm hover:border-gray-500 transition-colors"
           >
             Back
           </button>
           <button
             onClick={handleDone}
-            className="flex-1 py-3.5 rounded-2xl bg-gray-900 text-white font-semibold text-sm
-                       hover:bg-gray-800 active:scale-[0.98] transition-all"
+            className="flex-1 py-3.5 rounded-2xl bg-gray-100 text-gray-900 font-semibold text-sm
+                       hover:bg-gray-300 active:scale-[0.98] transition-all"
           >
             {selectedIds.length === 0 ? "Skip for now →" : `Done — ${selectedIds.length} card${selectedIds.length === 1 ? '' : 's'} →`}
           </button>

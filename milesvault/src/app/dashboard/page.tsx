@@ -51,16 +51,16 @@ function CapMeters({
       <div className="space-y-2.5">
         {groups.map(g => {
           const pct = Math.min(100, (g.spentSgd / g.capSgd) * 100);
-          const barColor = pct >= 100 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bg-gray-900';
+          const barColor = pct >= 100 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bg-gray-100';
           return (
             <div key={g.capSgd + g.labels.join()}>
               <div className="flex items-baseline justify-between mb-1">
-                <span className="text-xs text-gray-600 truncate pr-2">{g.labels.join(' / ')}</span>
-                <span className="text-xs font-semibold text-gray-900 flex-shrink-0">
+                <span className="text-xs text-gray-400 truncate pr-2">{g.labels.join(' / ')}</span>
+                <span className="text-xs font-semibold text-gray-100 flex-shrink-0">
                   ${Math.round(g.spentSgd).toLocaleString()} / ${g.capSgd.toLocaleString()}
                 </span>
               </div>
-              <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+              <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
                 <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
               </div>
             </div>
@@ -77,7 +77,7 @@ function CapMeters({
             value={statementDay ?? ''}
             onClick={e => e.stopPropagation()}
             onChange={e => onStatementDayChange(e.target.value ? parseInt(e.target.value) : null)}
-            className="text-[11px] font-semibold text-gray-700 bg-gray-100 rounded-lg px-2 py-1 outline-none"
+            className="text-[11px] font-semibold text-gray-300 bg-gray-800 rounded-lg px-2 py-1 outline-none"
           >
             <option value="">Not set (uses 1st)</option>
             {Array.from({ length: 28 }, (_, i) => i + 1).map(d => (
@@ -105,14 +105,14 @@ function CardDetail({
 }) {
   if (card.isAmazePairingCard) {
     return (
-      <div className="card-detail-enter bg-gray-50 border-t border-gray-100 px-4 py-4">
+      <div className="card-detail-enter bg-gray-950 border-t border-gray-800 px-4 py-4">
         <p className="text-xs text-gray-500 leading-relaxed">{card.notes}</p>
       </div>
     );
   }
 
   return (
-    <div className="card-detail-enter bg-gray-50 border-t border-gray-100 px-4 py-4 space-y-4">
+    <div className="card-detail-enter bg-gray-950 border-t border-gray-800 px-4 py-4 space-y-4">
       {/* Earn Rates */}
       {card.earnRates.length > 0 && (
         <div>
@@ -121,15 +121,15 @@ function CardDetail({
             {card.earnRates.map((rate, i) => (
               <div key={i} className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <span className="text-sm font-medium text-gray-900">{rate.label}</span>
+                  <span className="text-sm font-medium text-gray-100">{rate.label}</span>
                   {rate.notes && (
                     <p className="text-xs text-gray-400 leading-tight mt-0.5">{rate.notes}</p>
                   )}
                 </div>
                 <div className="flex-shrink-0 text-right">
-                  <span className="text-sm font-bold text-gray-900">{rate.mpd} mpd</span>
+                  <span className="text-sm font-bold text-gray-100">{rate.mpd} mpd</span>
                   {rate.capSgd != null && (
-                    <p className="text-[11px] text-amber-600 font-medium mt-0.5">
+                    <p className="text-[11px] text-amber-400 font-medium mt-0.5">
                       Cap: ${rate.capSgd.toLocaleString()}/mth
                     </p>
                   )}
@@ -150,11 +150,11 @@ function CardDetail({
 
       {/* Cap Reset */}
       {card.earnRates.some(r => r.capSgd != null) && (
-        <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 flex gap-2 items-start">
+        <div className="bg-amber-950 border border-amber-900 rounded-xl px-3 py-2.5 flex gap-2 items-start">
           <span className="text-amber-500 text-sm mt-0.5">🗓</span>
           <div>
-            <p className="text-xs font-semibold text-amber-800">Bonus cap resets</p>
-            <p className="text-xs text-amber-700 mt-0.5">{card.capResetDay}</p>
+            <p className="text-xs font-semibold text-amber-200">Bonus cap resets</p>
+            <p className="text-xs text-amber-300 mt-0.5">{card.capResetDay}</p>
           </div>
         </div>
       )}
@@ -167,7 +167,7 @@ function CardDetail({
             {card.transferPartners.map((tp, i) => (
               <div key={i} className="flex items-center justify-between">
                 <div>
-                  <span className="text-sm font-medium text-gray-900">{tp.programme}</span>
+                  <span className="text-sm font-medium text-gray-100">{tp.programme}</span>
                   <p className="text-xs text-gray-400">{tp.airline}</p>
                 </div>
                 <div className="text-right text-xs text-gray-500">
@@ -175,7 +175,7 @@ function CardDetail({
                   {tp.conversionFeeSgd > 0 ? (
                     <p className="text-red-500">${tp.conversionFeeSgd} fee</p>
                   ) : (
-                    <p className="text-green-600">No fee</p>
+                    <p className="text-green-400">No fee</p>
                   )}
                   <p>{tp.blockSizeMiles.toLocaleString()} min · {tp.transferTimeDaysMin}–{tp.transferTimeDaysMax}d</p>
                 </div>
@@ -187,9 +187,9 @@ function CardDetail({
 
       {/* Amaze Compatible */}
       {card.amazeCompatible && (
-        <div className="bg-purple-50 border border-purple-100 rounded-xl px-3 py-2.5 flex gap-2 items-center">
+        <div className="bg-purple-950 border border-purple-900 rounded-xl px-3 py-2.5 flex gap-2 items-center">
           <span className="text-purple-500 text-sm">⚡</span>
-          <p className="text-xs text-purple-800 font-medium">
+          <p className="text-xs text-purple-200 font-medium">
             Amaze-compatible — pair with Instarem Amaze to unlock higher rates on online spend.
           </p>
         </div>
@@ -197,11 +197,11 @@ function CardDetail({
 
       {/* HeyMax Compatible */}
       {card.heymaxCompatible && (
-        <div className="bg-teal-50 border border-teal-100 rounded-xl px-3 py-2.5 flex gap-2 items-start">
+        <div className="bg-teal-950 border border-teal-900 rounded-xl px-3 py-2.5 flex gap-2 items-start">
           <span className="text-teal-500 text-sm mt-0.5">✦</span>
           <div>
-            <p className="text-xs text-teal-800 font-semibold">HeyMax compatible</p>
-            <p className="text-xs text-teal-700 mt-0.5 leading-relaxed">
+            <p className="text-xs text-teal-200 font-semibold">HeyMax compatible</p>
+            <p className="text-xs text-teal-300 mt-0.5 leading-relaxed">
               Shop via HeyMax to earn Max Miles on top of this card&apos;s miles. Some merchants (Shopee, Grab, Deliveroo) use gift cards that code as MCC 5311 — potentially unlocking this card&apos;s shopping bonus tier too.
             </p>
           </div>
@@ -217,9 +217,9 @@ function CardDetail({
       )}
 
       {/* Annual fee */}
-      <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+      <div className="flex items-center justify-between pt-1 border-t border-gray-800">
         <span className="text-xs text-gray-400">Annual fee</span>
-        <span className="text-xs font-semibold text-gray-700">
+        <span className="text-xs font-semibold text-gray-300">
           {card.annualFeeSgd === 0 ? 'Free' : `$${card.annualFeeSgd.toFixed(2)}`}
         </span>
       </div>
@@ -229,7 +229,7 @@ function CardDetail({
         href={card.officialPageUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800"
+        className="flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-200"
         onClick={e => e.stopPropagation()}
       >
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -259,10 +259,10 @@ function DashboardCard({
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 overflow-hidden">
       {/* Card row — tappable header */}
       <button
-        className="w-full flex items-center gap-4 px-4 py-3.5 text-left hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center gap-4 px-4 py-3.5 text-left hover:bg-gray-800 transition-colors"
         onClick={() => setExpanded(e => !e)}
       >
         {/* Thumbnail */}
@@ -291,9 +291,9 @@ function DashboardCard({
         {/* Name & tagline */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <p className="text-sm font-semibold text-gray-900 truncate">{card.cardName}</p>
+            <p className="text-sm font-semibold text-gray-100 truncate">{card.cardName}</p>
             {card.heymaxCompatible && (
-              <span className="flex-shrink-0 text-[9px] font-bold text-teal-600 bg-teal-50 border border-teal-200 rounded-full px-1.5 py-0.5 leading-none">
+              <span className="flex-shrink-0 text-[9px] font-bold text-teal-400 bg-teal-950 border border-teal-800 rounded-full px-1.5 py-0.5 leading-none">
                 HeyMax
               </span>
             )}
@@ -343,20 +343,20 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
   const mcc5311Merchants = getMcc5311Merchants();
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-6">
+    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 overflow-hidden mt-6">
       {/* Header — always visible */}
       <button
-        className="w-full flex items-center gap-3 px-4 py-4 text-left hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-4 text-left hover:bg-gray-800 transition-colors"
         onClick={() => setExpanded(e => !e)}
       >
         {/* Icon */}
-        <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-teal-950 border border-teal-900 flex items-center justify-center flex-shrink-0">
           <span className="text-lg">✦</span>
         </div>
 
         {/* Text */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-gray-900">HeyMax — Stack Max Miles</p>
+          <p className="text-sm font-bold text-gray-100">HeyMax — Stack Max Miles</p>
           <p className="text-xs text-gray-400 mt-0.5">
             Earn extra miles at 500+ merchants on top of your card
           </p>
@@ -373,10 +373,10 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
 
       {/* Expanded content */}
       {expanded && (
-        <div className="card-detail-enter border-t border-gray-100">
+        <div className="card-detail-enter border-t border-gray-800">
           {/* How it works */}
           <div className="px-4 pt-4 pb-3 space-y-3">
-            <p className="text-xs text-gray-600 leading-relaxed">
+            <p className="text-xs text-gray-400 leading-relaxed">
               {HEYMAX_INFO.howItWorks}
             </p>
 
@@ -387,8 +387,8 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
                 { label: 'Transfer fee',   value: HEYMAX_INFO.transferFee },
                 { label: 'Programmes',     value: HEYMAX_INFO.numPartners },
               ].map(fact => (
-                <div key={fact.label} className="bg-gray-50 rounded-xl px-2.5 py-2 text-center">
-                  <p className="text-xs font-bold text-gray-900">{fact.value}</p>
+                <div key={fact.label} className="bg-gray-950 rounded-xl px-2.5 py-2 text-center">
+                  <p className="text-xs font-bold text-gray-100">{fact.value}</p>
                   <p className="text-[10px] text-gray-400 mt-0.5 leading-tight">{fact.label}</p>
                 </div>
               ))}
@@ -405,9 +405,9 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
                 {compatibleCards.map(card => (
                   <div
                     key={card.id}
-                    className="inline-flex items-center gap-1.5 bg-teal-50 border border-teal-100 rounded-full px-2.5 py-1"
+                    className="inline-flex items-center gap-1.5 bg-teal-950 border border-teal-900 rounded-full px-2.5 py-1"
                   >
-                    <span className="text-[10px] font-semibold text-teal-800">{card.cardName}</span>
+                    <span className="text-[10px] font-semibold text-teal-200">{card.cardName}</span>
                   </div>
                 ))}
               </div>
@@ -415,19 +415,19 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
           )}
 
           {/* MCC 5311 tip */}
-          <div className="mx-4 mb-3 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5">
-            <p className="text-xs font-semibold text-amber-800 mb-1">💡 MCC 5311 gift card trick</p>
-            <p className="text-xs text-amber-700 leading-relaxed">
+          <div className="mx-4 mb-3 bg-amber-950 border border-amber-900 rounded-xl px-3 py-2.5">
+            <p className="text-xs font-semibold text-amber-200 mb-1">💡 MCC 5311 gift card trick</p>
+            <p className="text-xs text-amber-300 leading-relaxed">
               {HEYMAX_INFO.mcc5311Note}
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {mcc5311Merchants.slice(0, 6).map(m => (
-                <span key={m.name} className="text-[10px] bg-amber-100 text-amber-800 rounded-full px-2 py-0.5 font-medium">
+                <span key={m.name} className="text-[10px] bg-amber-900 text-amber-200 rounded-full px-2 py-0.5 font-medium">
                   {m.name}
                 </span>
               ))}
               {mcc5311Merchants.length > 6 && (
-                <span className="text-[10px] text-amber-600 px-1 py-0.5">+{mcc5311Merchants.length - 6} more</span>
+                <span className="text-[10px] text-amber-400 px-1 py-0.5">+{mcc5311Merchants.length - 6} more</span>
               )}
             </div>
           </div>
@@ -444,8 +444,8 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
                   onClick={() => setActiveCategory(cat)}
                   className={`flex-shrink-0 flex items-center gap-1 text-[11px] font-semibold rounded-full px-3 py-1.5 transition-colors ${
                     activeCategory === cat
-                      ? 'bg-gray-900 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                   }`}
                 >
                   <span>{CATEGORY_ICONS[cat]}</span>
@@ -462,9 +462,9 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
                 <div key={m.name} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-sm font-medium text-gray-900">{m.name}</span>
+                      <span className="text-sm font-medium text-gray-100">{m.name}</span>
                       {m.giftCardMcc5311 && (
-                        <span className="text-[9px] font-bold text-amber-700 bg-amber-100 rounded-full px-1.5 py-0.5 leading-none">
+                        <span className="text-[9px] font-bold text-amber-300 bg-amber-900 rounded-full px-1.5 py-0.5 leading-none">
                           MCC 5311
                         </span>
                       )}
@@ -481,8 +481,8 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
                       onClick={e => e.stopPropagation()}
                       className="inline-flex items-center gap-1"
                     >
-                      <span className="text-sm font-bold text-teal-700">{m.milesPerDollar}</span>
-                      <span className="text-[10px] text-teal-600 font-medium">mpd</span>
+                      <span className="text-sm font-bold text-teal-300">{m.milesPerDollar}</span>
+                      <span className="text-[10px] text-teal-400 font-medium">mpd</span>
                       <svg className="w-3 h-3 text-teal-500 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                           d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -542,8 +542,8 @@ export default function DashboardPage() {
 
   if (!mounted || !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <div className="w-8 h-8 border-2 border-gray-700 border-t-gray-100 rounded-full animate-spin" />
       </div>
     );
   }
@@ -555,17 +555,17 @@ export default function DashboardPage() {
   const incomeLabel = bracketLabel(profile.incomeBracket);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-950">
       {/* Top nav */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-4">
+      <div className="sticky top-0 z-20 bg-gray-900 border-b border-gray-800 px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-gray-900">Vault</h1>
+            <h1 className="text-lg font-bold text-gray-100">Vault</h1>
             <p className="text-xs text-gray-400">Your card library · Income: {incomeLabel}</p>
           </div>
           <button
             onClick={() => router.push('/onboarding/cards')}
-            className="text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1.5 transition-colors"
+            className="text-xs font-semibold text-gray-400 bg-gray-800 hover:bg-gray-700 rounded-full px-3 py-1.5 transition-colors"
           >
             Edit cards
           </button>
@@ -575,10 +575,10 @@ export default function DashboardPage() {
       <div className="max-w-2xl mx-auto px-4 pt-6 pb-24">
         {/* Summary chip */}
         <div className="flex items-center gap-2 mb-5">
-          <span className="text-sm font-bold text-gray-900">
+          <span className="text-sm font-bold text-gray-100">
             {myCards.length} {myCards.length === 1 ? 'card' : 'cards'} in your wallet
           </span>
-          <span className="text-gray-300">·</span>
+          <span className="text-gray-600">·</span>
           <span className="text-sm text-gray-500">tap any card to expand</span>
         </div>
 
@@ -586,13 +586,13 @@ export default function DashboardPage() {
           /* Empty state */
           <div className="text-center py-20">
             <p className="text-4xl mb-4">💳</p>
-            <h2 className="text-base font-semibold text-gray-900 mb-2">No cards added yet</h2>
+            <h2 className="text-base font-semibold text-gray-100 mb-2">No cards added yet</h2>
             <p className="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
               Add the credit cards you own to see earn rates, caps, and transfer partners.
             </p>
             <button
               onClick={() => router.push('/onboarding/cards')}
-              className="px-6 py-3 rounded-2xl bg-gray-900 text-white font-semibold text-sm hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 rounded-2xl bg-gray-100 text-gray-900 font-semibold text-sm hover:bg-gray-300 transition-colors"
             >
               Add cards
             </button>
@@ -612,7 +612,7 @@ export default function DashboardPage() {
             {/* Add more */}
             <button
               onClick={() => router.push('/onboarding/cards')}
-              className="w-full py-3.5 rounded-2xl border-2 border-dashed border-gray-200 text-sm font-semibold text-gray-400 hover:border-gray-400 hover:text-gray-600 transition-colors"
+              className="w-full py-3.5 rounded-2xl border-2 border-dashed border-gray-700 text-sm font-semibold text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors"
             >
               + Add or remove cards
             </button>

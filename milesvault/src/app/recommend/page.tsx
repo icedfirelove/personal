@@ -65,47 +65,47 @@ function RecRow({
   const best = rank === 0;
   return (
     <div
-      className={`bg-white rounded-2xl border overflow-hidden ${
-        best ? 'border-gray-900 shadow-md' : 'border-gray-100 shadow-sm'
+      className={`bg-gray-900 rounded-2xl border overflow-hidden ${
+        best ? 'border-gray-300 shadow-md' : 'border-gray-800 shadow-sm'
       }`}
     >
       {best && (
-        <div className="bg-gray-900 text-white text-[10px] font-bold tracking-widest uppercase px-4 py-1">
+        <div className="bg-gray-100 text-gray-900 text-[10px] font-bold tracking-widest uppercase px-4 py-1">
           Best card for this swipe
         </div>
       )}
       <div className="flex items-center gap-3 px-4 py-3">
         <CardThumb card={rec.card} />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate">{rec.card.cardName}</p>
+          <p className="text-sm font-semibold text-gray-100 truncate">{rec.card.cardName}</p>
           <p className="text-[11px] text-gray-400 truncate">
             {rec.bonusLabel ?? 'Base rate'}
             {rec.remainingCapSgd != null && (
-              <span className={rec.hitsCap ? 'text-red-500 font-medium' : 'text-amber-600'}>
+              <span className={rec.hitsCap ? 'text-red-500 font-medium' : 'text-amber-400'}>
                 {' '}· ${Math.round(rec.remainingCapSgd).toLocaleString()} cap left
               </span>
             )}
           </p>
           <div className="flex flex-wrap gap-1 mt-1">
             {rec.hitsCap && (
-              <span className="text-[9px] font-bold text-red-600 bg-red-50 border border-red-100 rounded-full px-1.5 py-0.5">
+              <span className="text-[9px] font-bold text-red-400 bg-red-950 border border-red-900 rounded-full px-1.5 py-0.5">
                 Partially over cap
               </span>
             )}
             {rec.conditional && (
-              <span className="text-[9px] font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-1.5 py-0.5">
+              <span className="text-[9px] font-bold text-blue-400 bg-blue-950 border border-blue-900 rounded-full px-1.5 py-0.5">
                 Only if chosen bonus category
               </span>
             )}
             {rec.amazeBoost && (
-              <span className="text-[9px] font-bold text-purple-600 bg-purple-50 border border-purple-100 rounded-full px-1.5 py-0.5">
+              <span className="text-[9px] font-bold text-purple-400 bg-purple-950 border border-purple-900 rounded-full px-1.5 py-0.5">
                 ⚡ Amaze-compatible
               </span>
             )}
           </div>
         </div>
         <div className="text-right flex-shrink-0">
-          <p className="text-base font-bold text-gray-900">
+          <p className="text-base font-bold text-gray-100">
             {rec.effectiveMpd.toFixed(2)}
             <span className="text-[10px] font-semibold text-gray-400"> mpd</span>
           </p>
@@ -118,8 +118,8 @@ function RecRow({
               disabled={logged}
               className={`mt-1.5 text-[11px] font-bold rounded-full px-3 py-1 transition-colors ${
                 logged
-                  ? 'bg-green-50 text-green-700 border border-green-200'
-                  : 'bg-gray-900 text-white hover:bg-gray-700'
+                  ? 'bg-green-950 text-green-300 border border-green-800'
+                  : 'bg-gray-100 text-gray-900 hover:bg-gray-300'
               }`}
             >
               {logged ? '✓ Logged' : 'Log swipe'}
@@ -188,18 +188,18 @@ export default function RecommendPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <div className="w-8 h-8 border-2 border-gray-700 border-t-gray-100 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-950 pb-20">
       {/* Top nav */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-4">
+      <div className="sticky top-0 z-20 bg-gray-900 border-b border-gray-800 px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-lg font-bold text-gray-900">Which card do I swipe?</h1>
+          <h1 className="text-lg font-bold text-gray-100">Which card do I swipe?</h1>
           <p className="text-xs text-gray-400">Cap-aware ranking across your {myCards.length} cards</p>
         </div>
       </div>
@@ -216,8 +216,8 @@ export default function RecommendPage() {
               onClick={() => setCategory(cat.value)}
               className={`flex-shrink-0 flex items-center gap-1 text-[11px] font-semibold rounded-full px-3 py-1.5 transition-colors ${
                 category === cat.value
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-gray-100 text-gray-900'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >
               <span>{cat.icon}</span>
@@ -228,7 +228,7 @@ export default function RecommendPage() {
         <p className="text-[11px] text-gray-400 mb-4">{categoryMeta(category).hint}</p>
 
         {/* Amount */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3 flex items-center gap-3 mb-5">
+        <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 px-4 py-3 flex items-center gap-3 mb-5">
           <span className="text-sm font-bold text-gray-400">S$</span>
           <input
             type="number"
@@ -237,10 +237,10 @@ export default function RecommendPage() {
             placeholder="Amount (optional — affects cap math)"
             value={amountStr}
             onChange={e => setAmountStr(e.target.value)}
-            className="flex-1 text-base font-semibold text-gray-900 placeholder:text-gray-300 placeholder:text-sm placeholder:font-normal outline-none"
+            className="flex-1 text-base font-semibold text-gray-100 placeholder:text-gray-600 placeholder:text-sm placeholder:font-normal outline-none"
           />
           {amountStr && (
-            <button onClick={() => setAmountStr('')} className="text-xs text-gray-400 hover:text-gray-600">
+            <button onClick={() => setAmountStr('')} className="text-xs text-gray-400 hover:text-gray-300">
               Clear
             </button>
           )}
@@ -253,7 +253,7 @@ export default function RecommendPage() {
             <p className="text-sm text-gray-500 mb-4">Add cards to your wallet first.</p>
             <button
               onClick={() => router.push('/onboarding/cards')}
-              className="px-6 py-3 rounded-2xl bg-gray-900 text-white font-semibold text-sm"
+              className="px-6 py-3 rounded-2xl bg-gray-100 text-gray-900 font-semibold text-sm"
             >
               Add cards
             </button>
@@ -284,7 +284,7 @@ export default function RecommendPage() {
             <p className="text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-2">
               Recent logged spend
             </p>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 divide-y divide-gray-50">
+            <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 divide-y divide-gray-800">
               {recent.map(e => {
                 const card = getCard(e.cardId);
                 const meta = categoryMeta(e.category);
@@ -292,7 +292,7 @@ export default function RecommendPage() {
                   <div key={e.id} className="flex items-center gap-3 px-4 py-2.5">
                     <span className="text-base">{meta.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-gray-900 truncate">
+                      <p className="text-xs font-semibold text-gray-100 truncate">
                         ${e.amountSgd.toLocaleString()} · {card?.cardName ?? e.cardId}
                       </p>
                       <p className="text-[10px] text-gray-400">
@@ -301,7 +301,7 @@ export default function RecommendPage() {
                     </div>
                     <button
                       onClick={() => handleDelete(e.id)}
-                      className="text-[10px] text-gray-300 hover:text-red-500 font-semibold"
+                      className="text-[10px] text-gray-600 hover:text-red-500 font-semibold"
                     >
                       Remove
                     </button>

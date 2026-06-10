@@ -44,16 +44,16 @@ function PromoCard({
       ? 'bg-gray-300'
       : p.daysLeft <= 7
         ? 'bg-red-500'
-        : 'bg-gray-900';
+        : 'bg-gray-100';
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-4">
+    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 px-4 py-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-sm font-bold text-gray-900">{promo.title}</p>
+          <p className="text-sm font-bold text-gray-100">{promo.title}</p>
           <p className="text-xs text-gray-400 mt-0.5">{card?.cardName ?? promo.cardId}</p>
         </div>
-        <button onClick={onDelete} className="text-[10px] text-gray-300 hover:text-red-500 font-semibold flex-shrink-0">
+        <button onClick={onDelete} className="text-[10px] text-gray-600 hover:text-red-500 font-semibold flex-shrink-0">
           Remove
         </button>
       </div>
@@ -61,12 +61,12 @@ function PromoCard({
       {/* Progress */}
       <div className="mt-3">
         <div className="flex items-baseline justify-between mb-1">
-          <span className="text-xs font-semibold text-gray-700">
+          <span className="text-xs font-semibold text-gray-300">
             ${p.spentSgd.toLocaleString()} <span className="text-gray-400 font-normal">of ${promo.targetSgd.toLocaleString()}</span>
           </span>
           <span
             className={`text-[11px] font-bold ${
-              p.done ? 'text-green-600' : expired ? 'text-gray-400' : p.daysLeft <= 7 ? 'text-red-600' : 'text-gray-500'
+              p.done ? 'text-green-400' : expired ? 'text-gray-400' : p.daysLeft <= 7 ? 'text-red-400' : 'text-gray-500'
             }`}
           >
             {p.done
@@ -76,7 +76,7 @@ function PromoCard({
                 : `${p.daysLeft} day${p.daysLeft === 1 ? '' : 's'} left`}
           </span>
         </div>
-        <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+        <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
           <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${p.pct}%` }} />
         </div>
         <div className="flex items-center justify-between mt-1.5">
@@ -84,7 +84,7 @@ function PromoCard({
             Deadline {fmtDate(promo.deadlineISO)} · {promo.rewardMiles.toLocaleString()} miles
           </p>
           {!p.done && !expired && (
-            <p className="text-[11px] font-semibold text-amber-600">${p.remainingSgd.toLocaleString()} to go</p>
+            <p className="text-[11px] font-semibold text-amber-400">${p.remainingSgd.toLocaleString()} to go</p>
           )}
         </div>
       </div>
@@ -92,7 +92,7 @@ function PromoCard({
       {/* Quick log */}
       {!p.done && !expired && (
         <div className="mt-3 flex items-center gap-2">
-          <div className="flex-1 flex items-center gap-1.5 bg-gray-50 rounded-xl px-3 py-2">
+          <div className="flex-1 flex items-center gap-1.5 bg-gray-950 rounded-xl px-3 py-2">
             <span className="text-xs font-bold text-gray-400">S$</span>
             <input
               type="number"
@@ -101,7 +101,7 @@ function PromoCard({
               placeholder="Log spend on this card"
               value={logStr}
               onChange={e => setLogStr(e.target.value)}
-              className="flex-1 bg-transparent text-sm font-semibold text-gray-900 placeholder:text-gray-300 placeholder:font-normal placeholder:text-xs outline-none"
+              className="flex-1 bg-transparent text-sm font-semibold text-gray-100 placeholder:text-gray-600 placeholder:font-normal placeholder:text-xs outline-none"
             />
           </div>
           <button
@@ -112,7 +112,7 @@ function PromoCard({
                 setLogStr('');
               }
             }}
-            className="text-xs font-bold bg-gray-900 text-white rounded-xl px-4 py-2.5 hover:bg-gray-700 transition-colors"
+            className="text-xs font-bold bg-gray-100 text-gray-900 rounded-xl px-4 py-2.5 hover:bg-gray-300 transition-colors"
           >
             Log
           </button>
@@ -134,18 +134,18 @@ function SeededRow({ seed, owned, onStart }: { seed: SeededPromo; owned: boolean
   const costPerMile = seed.annualFeeSgd > 0 ? (seed.annualFeeSgd / seed.bonusMiles) * 100 : 0;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <button className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors" onClick={() => setExpanded(e => !e)}>
+    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 overflow-hidden">
+      <button className="w-full px-4 py-3 text-left hover:bg-gray-800 transition-colors" onClick={() => setExpanded(e => !e)}>
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 truncate">{card?.cardName ?? seed.cardId}</p>
+            <p className="text-sm font-semibold text-gray-100 truncate">{card?.cardName ?? seed.cardId}</p>
             <p className="text-xs text-gray-400 truncate">
               ${seed.minSpendSgd.toLocaleString()} spend → {seed.bonusMiles.toLocaleString()} miles
               {seed.annualFeeSgd > 0 ? ` · $${seed.annualFeeSgd.toFixed(0)} fee` : ' · no fee'}
             </p>
           </div>
           <div className="text-right flex-shrink-0">
-            <p className={`text-xs font-bold ${applyByPassed ? 'text-red-500' : 'text-gray-700'}`}>
+            <p className={`text-xs font-bold ${applyByPassed ? 'text-red-500' : 'text-gray-300'}`}>
               {applyByPassed ? 'Ended' : `Apply by ${fmtDate(seed.applyByISO)}`}
             </p>
             <p className="text-[10px] text-gray-400">
@@ -157,7 +157,7 @@ function SeededRow({ seed, owned, onStart }: { seed: SeededPromo; owned: boolean
       </button>
 
       {expanded && (
-        <div className="border-t border-gray-100 bg-gray-50 px-4 py-3 space-y-3">
+        <div className="border-t border-gray-800 bg-gray-950 px-4 py-3 space-y-3">
           {seed.notes && <p className="text-[11px] text-gray-500 leading-relaxed">{seed.notes}</p>}
           <p className="text-[11px] text-gray-500">
             Min spend window: <strong>{seed.spendWindowDays} days from card approval</strong>
@@ -173,12 +173,12 @@ function SeededRow({ seed, owned, onStart }: { seed: SeededPromo; owned: boolean
                 type="date"
                 value={approvalISO}
                 onChange={e => setApprovalISO(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 outline-none"
+                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-100 outline-none"
               />
             </div>
             <button
               onClick={() => onStart(approvalISO)}
-              className="self-end text-xs font-bold bg-gray-900 text-white rounded-xl px-4 py-2.5 hover:bg-gray-700 transition-colors"
+              className="self-end text-xs font-bold bg-gray-100 text-gray-900 rounded-xl px-4 py-2.5 hover:bg-gray-300 transition-colors"
             >
               Track this
             </button>
@@ -201,11 +201,11 @@ function CustomPromoForm({ onAdd }: { onAdd: (p: Omit<ActivePromo, 'id'>) => voi
   const valid = title.trim() && parseFloat(target) > 0 && parseFloat(reward) > 0 && deadline;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-4 space-y-3">
+    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 px-4 py-4 space-y-3">
       <select
         value={cardId}
         onChange={e => setCardId(e.target.value)}
-        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 outline-none"
+        className="w-full bg-gray-950 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-100 outline-none"
       >
         {CARDS.filter(c => !c.isAmazePairingCard).map(c => (
           <option key={c.id} value={c.id}>{c.cardName}</option>
@@ -216,7 +216,7 @@ function CustomPromoForm({ onAdd }: { onAdd: (p: Omit<ActivePromo, 'id'>) => voi
         placeholder="Promo name, e.g. 30k miles welcome offer"
         value={title}
         onChange={e => setTitle(e.target.value)}
-        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 outline-none"
+        className="w-full bg-gray-950 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-100 placeholder:text-gray-600 outline-none"
       />
       <div className="grid grid-cols-2 gap-2">
         <input
@@ -224,14 +224,14 @@ function CustomPromoForm({ onAdd }: { onAdd: (p: Omit<ActivePromo, 'id'>) => voi
           placeholder="Min spend S$"
           value={target}
           onChange={e => setTarget(e.target.value)}
-          className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 outline-none"
+          className="bg-gray-950 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-100 placeholder:text-gray-600 outline-none"
         />
         <input
           type="number" inputMode="numeric" min="0"
           placeholder="Reward miles"
           value={reward}
           onChange={e => setReward(e.target.value)}
-          className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 outline-none"
+          className="bg-gray-950 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-100 placeholder:text-gray-600 outline-none"
         />
       </div>
       <div>
@@ -242,7 +242,7 @@ function CustomPromoForm({ onAdd }: { onAdd: (p: Omit<ActivePromo, 'id'>) => voi
           type="date"
           value={deadline}
           onChange={e => setDeadline(e.target.value)}
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 outline-none"
+          className="w-full bg-gray-950 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-100 outline-none"
         />
       </div>
       <button
@@ -257,7 +257,7 @@ function CustomPromoForm({ onAdd }: { onAdd: (p: Omit<ActivePromo, 'id'>) => voi
             deadlineISO: deadline,
           })
         }
-        className="w-full py-3 rounded-2xl bg-gray-900 text-white font-semibold text-sm disabled:opacity-30 hover:bg-gray-800 transition-colors"
+        className="w-full py-3 rounded-2xl bg-gray-100 text-gray-900 font-semibold text-sm disabled:opacity-30 hover:bg-gray-300 transition-colors"
       >
         Track promo
       </button>
@@ -289,8 +289,8 @@ export default function PromosPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <div className="w-8 h-8 border-2 border-gray-700 border-t-gray-100 rounded-full animate-spin" />
       </div>
     );
   }
@@ -329,11 +329,11 @@ export default function PromosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-950 pb-20">
       {/* Top nav */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-4">
+      <div className="sticky top-0 z-20 bg-gray-900 border-b border-gray-800 px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-lg font-bold text-gray-900">Sign-up bonus tracker</h1>
+          <h1 className="text-lg font-bold text-gray-100">Sign-up bonus tracker</h1>
           <p className="text-xs text-gray-400">Never miss a min-spend deadline — the cheapest miles you&apos;ll ever earn</p>
         </div>
       </div>
@@ -364,13 +364,13 @@ export default function PromosPage() {
           <p className="text-[11px] font-bold tracking-widest text-gray-400 uppercase flex-1">
             Add a promo
           </p>
-          <div className="flex bg-gray-100 rounded-full p-0.5">
+          <div className="flex bg-gray-800 rounded-full p-0.5">
             {(['offers', 'custom'] as const).map(t => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 className={`text-[11px] font-semibold rounded-full px-3 py-1 transition-colors ${
-                  tab === t ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                  tab === t ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-500'
                 }`}
               >
                 {t === 'offers' ? 'Current offers' : 'Custom'}
