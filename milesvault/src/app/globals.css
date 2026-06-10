@@ -53,6 +53,12 @@ button, a, select, input {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Bottom clearance for page content so nothing hides behind the fixed
+   tab bar (nav height + home-indicator inset + breathing room). */
+.page-bottom {
+  padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+}
+
 /* Splash screen entrance choreography */
 .splash-logo {
   animation: splash-pop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;

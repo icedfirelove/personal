@@ -569,7 +569,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 pt-6 pb-24">
+      <div className="max-w-2xl mx-auto px-4 pt-6 page-bottom">
         {/* Summary chip */}
         <div className="flex items-center gap-2 mb-5">
           <span className="text-sm font-bold text-on-surface">

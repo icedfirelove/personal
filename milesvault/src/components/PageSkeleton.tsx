@@ -8,7 +8,7 @@ import BottomNav from '@/components/BottomNav';
  */
 export default function PageSkeleton() {
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background page-bottom">
       {/* Header skeleton */}
       <div className="sticky top-0 z-20 bg-surface border-b border-outline px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto space-y-2">

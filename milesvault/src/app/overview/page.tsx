@@ -163,7 +163,7 @@ export default function OverviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background page-bottom">
       {/* Top nav */}
       <div className="sticky top-0 z-20 bg-surface border-b border-outline px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
