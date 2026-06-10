@@ -23,6 +23,7 @@ import {
   type UserSettings,
 } from '@/lib/spend';
 import BottomNav from '@/components/BottomNav';
+import PageSkeleton from '@/components/PageSkeleton';
 
 // ─── Cap Meter ────────────────────────────────────────────────
 
@@ -541,11 +542,7 @@ export default function DashboardPage() {
   }
 
   if (!mounted || !profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-2 border-outline-bright border-t-primary rounded-full animate-spin" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   const myCards = profile.selectedCardIds

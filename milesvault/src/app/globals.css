@@ -37,6 +37,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Snappy taps: kill the grey iOS tap flash and the legacy double-tap-zoom delay */
+button, a, select, input {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
 /* iOS safe areas (Dynamic Island / home indicator) — requires viewport-fit=cover */
 .header-safe {
   padding-top: calc(1rem + env(safe-area-inset-top));

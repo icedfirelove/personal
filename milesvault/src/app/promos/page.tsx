@@ -16,6 +16,7 @@ import {
   type ActivePromo,
 } from '@/lib/spend';
 import BottomNav from '@/components/BottomNav';
+import PageSkeleton from '@/components/PageSkeleton';
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-SG', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -288,11 +289,7 @@ export default function PromosPage() {
   }, [router]);
 
   if (!mounted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-2 border-outline-bright border-t-primary rounded-full animate-spin" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   const trackedSeedIds = new Set(promos.map(p => p.seedId).filter(Boolean));
