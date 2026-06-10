@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CARDS, getCard, type Card } from '@/data/cards';
 import { type SeededPromo } from '@/data/promos';
-import { recommendPromos } from '@/lib/promoRecs';
+import { recommendPromos, splitByEligibility } from '@/lib/promoRecs';
 import { getPromoFeed, refreshPromoFeed, timeAgo, type PromoFeed } from '@/lib/remotePromos';
 import PullToRefresh from '@/components/PullToRefresh';
 import { loadProfile } from '@/lib/storage';
@@ -371,7 +371,8 @@ export default function PromosPage() {
   const myCards = myCardIds.map(id => getCard(id)).filter((c): c is Card => !!c);
   const recommended = recommendPromos(availableSeeds, myCards, incomeBracket, entries);
   const recommendedIds = new Set(recommended.map(r => r.seed.seedId));
-  const otherSeeds = availableSeeds.filter(s => !recommendedIds.has(s.seedId));
+  const { eligible, ineligible } = splitByEligibility(availableSeeds, myCards, incomeBracket);
+  const otherSeeds = eligible.filter(s => !recommendedIds.has(s.seedId));
 
   function startSeeded(seed: SeededPromo, approvalISO: string) {
     const deadline = new Date(approvalISO);
@@ -519,6 +520,34 @@ export default function PromosPage() {
                 <p className="text-sm text-on-surface-variant text-center py-8">All current offers are already tracked.</p>
               )}
             </div>
+
+            {/* Not eligible — but shareable */}
+            {ineligible.length > 0 && (
+              <details className="mt-6 group">
+                <summary className="cursor-pointer list-none select-none flex items-center gap-2">
+                  <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase">
+                    🙅 Not for you · tell a friend ({ineligible.length})
+                  </p>
+                  <span className="text-[10px] text-muted group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <p className="text-[11px] text-muted mt-2 mb-3 leading-relaxed">
+                  Offers you can&apos;t apply for — worth passing on to someone who can.
+                </p>
+                <div className="space-y-2.5">
+                  {ineligible.map(({ seed, why }) => (
+                    <div key={seed.seedId} className="opacity-75">
+                      <SeededRow
+                        seed={seed}
+                        owned={myCardIds.includes(seed.cardId)}
+                        reason={undefined}
+                        onStart={iso => startSeeded(seed, iso)}
+                      />
+                      <p className="text-[10px] text-amber-400/90 mt-1 px-1">🙅 {why}</p>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
           </>
         ) : (
           <CustomPromoForm

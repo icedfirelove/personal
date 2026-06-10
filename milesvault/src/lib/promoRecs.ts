@@ -33,6 +33,52 @@ export function monthlySpendPace(entries: SpendEntry[], now = new Date()): numbe
 const fmtK = (n: number) =>
   n >= 1000 ? `$${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k` : `$${n}`;
 
+/**
+ * Why this offer doesn't apply to THIS user (null = eligible).
+ * Ineligible offers are still worth showing — they might suit a friend.
+ */
+export function ineligibilityReason(
+  seed: SeededPromo,
+  banksHeld: Set<string>,
+  income: number,
+): string | null {
+  const card = getCard(seed.cardId);
+  if (!card) return 'Unknown card';
+  if (card.incomeRequirementSgd > income) {
+    return `Needs ${fmtK(card.incomeRequirementSgd)}/yr income`;
+  }
+  if (seed.eligibility === 'NTB' && banksHeld.has(card.bank)) {
+    return `New-to-${card.bank} only — you already hold a ${card.bank} card`;
+  }
+  return null;
+}
+
+export interface PromoSplit {
+  eligible: SeededPromo[];
+  ineligible: { seed: SeededPromo; why: string }[];
+}
+
+/** Split offers into ones the user can apply for vs ones to share with friends. */
+export function splitByEligibility(
+  seeds: SeededPromo[],
+  myCards: Card[],
+  incomeBracket: string,
+  now = new Date(),
+): PromoSplit {
+  const income = bracketToIncome(incomeBracket);
+  const banksHeld = new Set(myCards.filter(c => !c.isAmazePairingCard).map(c => c.bank));
+  const eligible: SeededPromo[] = [];
+  const ineligible: { seed: SeededPromo; why: string }[] = [];
+
+  for (const seed of seeds) {
+    if (new Date(seed.applyByISO) < new Date(now.toDateString())) continue; // expired: show nowhere
+    const why = ineligibilityReason(seed, banksHeld, income);
+    if (why) ineligible.push({ seed, why });
+    else eligible.push(seed);
+  }
+  return { eligible, ineligible };
+}
+
 export function recommendPromos(
   seeds: SeededPromo[],
   myCards: Card[],
@@ -51,11 +97,10 @@ export function recommendPromos(
     const card = getCard(seed.cardId);
     if (!card) continue;
 
-    // Hard filters: expired, income, NTB eligibility
+    // Hard filters: expired + personal eligibility
     if (new Date(seed.applyByISO) < new Date(now.toDateString())) continue;
-    if (card.incomeRequirementSgd > income) continue;
+    if (ineligibilityReason(seed, banksHeld, income)) continue;
     const newToBank = !banksHeld.has(card.bank);
-    if (seed.eligibility === 'NTB' && !newToBank) continue;
 
     const costPerMile = seed.annualFeeSgd > 0 ? (seed.annualFeeSgd / seed.bonusMiles) * 100 : 0;
     const payoff = seed.bonusMiles / Math.max(1, seed.minSpendSgd); // miles per $ of spend
