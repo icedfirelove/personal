@@ -3,10 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { CARDS, getCard, type Card } from '@/data/cards';
+import { getCard, type Card } from '@/data/cards';
 import { loadProfile, bracketLabel, type UserProfile } from '@/lib/storage';
 import {
-  HEYMAX_MERCHANTS,
   HEYMAX_CATEGORIES,
   HEYMAX_INFO,
   getMerchantsByCategory,
