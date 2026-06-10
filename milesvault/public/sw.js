@@ -4,7 +4,7 @@
 //   HTML pages → Network First with cache fallback
 //   Everything else → Network only
 
-const CACHE_NAME = 'milesvault-v1';
+const CACHE_NAME = 'milesvault-v2'; // bump to purge all old caches on activate
 
 const STATIC_ASSETS = [
   '/',

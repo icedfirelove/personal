@@ -22,8 +22,8 @@ function CardPickerTile({
       onClick={onToggle}
       className={`relative flex flex-col rounded-2xl overflow-hidden border-2 transition-all duration-150 text-left w-full
         ${isSelected
-          ? 'border-gray-900 shadow-md scale-[1.02]'
-          : 'border-transparent shadow-sm hover:border-gray-700 hover:shadow-md'
+          ? 'border-primary shadow-md scale-[1.02]'
+          : 'border-transparent shadow-sm hover:border-outline-bright hover:shadow-md'
         }`}
     >
       {/* Card image or CSS fallback */}
@@ -57,7 +57,7 @@ function CardPickerTile({
 
         {/* Selection checkmark */}
         {isSelected && (
-          <div className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center shadow">
+          <div className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-surface flex items-center justify-center shadow">
             <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
@@ -66,9 +66,9 @@ function CardPickerTile({
       </div>
 
       {/* Card info */}
-      <div className="bg-gray-900 px-3 py-2.5 flex-1">
-        <p className="text-xs font-semibold text-gray-100 leading-tight truncate">{card.cardName}</p>
-        <p className="text-xs text-gray-400 mt-0.5 leading-tight line-clamp-2">{card.tagline}</p>
+      <div className="bg-surface px-3 py-2.5 flex-1">
+        <p className="text-xs font-semibold text-on-surface leading-tight truncate">{card.cardName}</p>
+        <p className="text-xs text-on-surface-variant mt-0.5 leading-tight line-clamp-2">{card.tagline}</p>
       </div>
     </button>
   );
@@ -115,24 +115,24 @@ export default function CardsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-gray-950/95 backdrop-blur-sm border-b border-gray-800 px-4 pb-3 pt-[calc(2rem+env(safe-area-inset-top))]">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-outline px-4 pb-3 pt-[calc(2rem+env(safe-area-inset-top))]">
         <div className="max-w-3xl mx-auto">
-          <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-3">
+          <p className="text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">
             Step 2 of 2
           </p>
           <div className="flex gap-2 mb-4">
-            <div className="h-1 w-16 rounded-full bg-gray-900" />
-            <div className="h-1 w-16 rounded-full bg-gray-900" />
+            <div className="h-1 w-16 rounded-full bg-surface" />
+            <div className="h-1 w-16 rounded-full bg-surface" />
           </div>
           <div className="flex items-end justify-between mb-3">
             <div>
-              <h1 className="text-xl font-bold text-gray-100">Which cards do you own?</h1>
-              <p className="text-xs text-gray-500 mt-0.5">Select all that apply.</p>
+              <h1 className="text-xl font-bold text-on-surface">Which cards do you own?</h1>
+              <p className="text-xs text-muted mt-0.5">Select all that apply.</p>
             </div>
             {selectedIds.length > 0 && (
-              <span className="text-xs font-semibold text-gray-100 bg-gray-200 rounded-full px-2.5 py-1">
+              <span className="text-xs font-semibold text-on-surface bg-gray-200 rounded-full px-2.5 py-1">
                 {selectedIds.length} selected
               </span>
             )}
@@ -140,7 +140,7 @@ export default function CardsPage() {
 
           {/* Search */}
           <div className="relative mb-3">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
             </svg>
             <input
@@ -148,7 +148,7 @@ export default function CardsPage() {
               placeholder="Search cards..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-gray-900 border border-gray-700 text-sm text-gray-100 placeholder:text-gray-400 focus:outline-none focus:border-gray-400"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-surface border border-outline-bright text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-gray-400"
             />
           </div>
 
@@ -160,8 +160,8 @@ export default function CardsPage() {
                 onClick={() => setActiveBank(bank)}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                   activeBank === bank
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-gray-500'
+                    ? 'bg-primary text-on-primary'
+                    : 'bg-surface text-on-surface-variant border border-outline-bright hover:border-outline-bright'
                 }`}
               >
                 {bank}
@@ -174,7 +174,7 @@ export default function CardsPage() {
       {/* Card grid */}
       <div className="flex-1 px-4 pt-4 pb-32 max-w-3xl mx-auto w-full">
         {filteredCards.length === 0 ? (
-          <div className="text-center py-16 text-gray-400 text-sm">
+          <div className="text-center py-16 text-on-surface-variant text-sm">
             No cards match your search.
           </div>
         ) : (
@@ -192,18 +192,18 @@ export default function CardsPage() {
       </div>
 
       {/* Fixed bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 bg-gray-950/95 backdrop-blur-sm border-t border-gray-800 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-outline px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <div className="max-w-3xl mx-auto flex gap-3">
           <button
             onClick={() => router.back()}
-            className="px-5 py-3.5 rounded-2xl border-2 border-gray-700 text-gray-300 font-semibold text-sm hover:border-gray-500 transition-colors"
+            className="px-5 py-3.5 rounded-2xl border-2 border-outline-bright text-on-surface font-semibold text-sm hover:border-outline-bright transition-colors"
           >
             Back
           </button>
           <button
             onClick={handleDone}
-            className="flex-1 py-3.5 rounded-2xl bg-gray-100 text-gray-900 font-semibold text-sm
-                       hover:bg-gray-300 active:scale-[0.98] transition-all"
+            className="flex-1 py-3.5 rounded-2xl bg-primary text-on-primary font-semibold text-sm
+                       hover:bg-primary-hover active:scale-[0.98] transition-all"
           >
             {selectedIds.length === 0 ? "Skip for now →" : `Done — ${selectedIds.length} card${selectedIds.length === 1 ? '' : 's'} →`}
           </button>

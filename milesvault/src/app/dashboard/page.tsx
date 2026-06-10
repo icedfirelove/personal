@@ -45,39 +45,39 @@ function CapMeters({
 
   return (
     <div>
-      <p className="text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-2">
+      <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">
         Bonus cap this period
       </p>
       <div className="space-y-2.5">
         {groups.map(g => {
           const pct = Math.min(100, (g.spentSgd / g.capSgd) * 100);
-          const barColor = pct >= 100 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bg-gray-100';
+          const barColor = pct >= 100 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bg-primary';
           return (
             <div key={g.capSgd + g.labels.join()}>
               <div className="flex items-baseline justify-between mb-1">
-                <span className="text-xs text-gray-400 truncate pr-2">{g.labels.join(' / ')}</span>
-                <span className="text-xs font-semibold text-gray-100 flex-shrink-0">
+                <span className="text-xs text-on-surface-variant truncate pr-2">{g.labels.join(' / ')}</span>
+                <span className="text-xs font-semibold text-on-surface flex-shrink-0">
                   ${Math.round(g.spentSgd).toLocaleString()} / ${g.capSgd.toLocaleString()}
                 </span>
               </div>
-              <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
+              <div className="h-1.5 rounded-full bg-surface-high overflow-hidden">
                 <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
               </div>
             </div>
           );
         })}
       </div>
-      <p className="text-[10px] text-gray-400 mt-2">
+      <p className="text-[10px] text-on-surface-variant mt-2">
         Based on spend you&apos;ve logged in Swipe. Resets in {resetDays} day{resetDays === 1 ? '' : 's'}.
       </p>
       {needsStatementDay && (
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-[10px] text-gray-400">Statement day:</span>
+          <span className="text-[10px] text-on-surface-variant">Statement day:</span>
           <select
             value={statementDay ?? ''}
             onClick={e => e.stopPropagation()}
             onChange={e => onStatementDayChange(e.target.value ? parseInt(e.target.value) : null)}
-            className="text-[11px] font-semibold text-gray-300 bg-gray-800 rounded-lg px-2 py-1 outline-none"
+            className="text-[11px] font-semibold text-on-surface bg-surface-high rounded-lg px-2 py-1 outline-none"
           >
             <option value="">Not set (uses 1st)</option>
             {Array.from({ length: 28 }, (_, i) => i + 1).map(d => (
@@ -105,29 +105,29 @@ function CardDetail({
 }) {
   if (card.isAmazePairingCard) {
     return (
-      <div className="card-detail-enter bg-gray-950 border-t border-gray-800 px-4 py-4">
-        <p className="text-xs text-gray-500 leading-relaxed">{card.notes}</p>
+      <div className="card-detail-enter bg-background border-t border-outline px-4 py-4">
+        <p className="text-xs text-muted leading-relaxed">{card.notes}</p>
       </div>
     );
   }
 
   return (
-    <div className="card-detail-enter bg-gray-950 border-t border-gray-800 px-4 py-4 space-y-4">
+    <div className="card-detail-enter bg-background border-t border-outline px-4 py-4 space-y-4">
       {/* Earn Rates */}
       {card.earnRates.length > 0 && (
         <div>
-          <p className="text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-2">Earn Rates</p>
+          <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">Earn Rates</p>
           <div className="space-y-1.5">
             {card.earnRates.map((rate, i) => (
               <div key={i} className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <span className="text-sm font-medium text-gray-100">{rate.label}</span>
+                  <span className="text-sm font-medium text-on-surface">{rate.label}</span>
                   {rate.notes && (
-                    <p className="text-xs text-gray-400 leading-tight mt-0.5">{rate.notes}</p>
+                    <p className="text-xs text-on-surface-variant leading-tight mt-0.5">{rate.notes}</p>
                   )}
                 </div>
                 <div className="flex-shrink-0 text-right">
-                  <span className="text-sm font-bold text-gray-100">{rate.mpd} mpd</span>
+                  <span className="text-sm font-bold text-on-surface">{rate.mpd} mpd</span>
                   {rate.capSgd != null && (
                     <p className="text-[11px] text-amber-400 font-medium mt-0.5">
                       Cap: ${rate.capSgd.toLocaleString()}/mth
@@ -162,15 +162,15 @@ function CardDetail({
       {/* Transfer Partners */}
       {card.transferPartners.length > 0 && (
         <div>
-          <p className="text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-2">Transfer Partners</p>
+          <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">Transfer Partners</p>
           <div className="space-y-1.5">
             {card.transferPartners.map((tp, i) => (
               <div key={i} className="flex items-center justify-between">
                 <div>
-                  <span className="text-sm font-medium text-gray-100">{tp.programme}</span>
-                  <p className="text-xs text-gray-400">{tp.airline}</p>
+                  <span className="text-sm font-medium text-on-surface">{tp.programme}</span>
+                  <p className="text-xs text-on-surface-variant">{tp.airline}</p>
                 </div>
-                <div className="text-right text-xs text-gray-500">
+                <div className="text-right text-xs text-muted">
                   <p>{tp.pointsPerMile}:{' '}1 pts→mile</p>
                   {tp.conversionFeeSgd > 0 ? (
                     <p className="text-red-500">${tp.conversionFeeSgd} fee</p>
@@ -211,15 +211,15 @@ function CardDetail({
       {/* Notes */}
       {card.notes && (
         <div>
-          <p className="text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-1.5">Notes</p>
-          <p className="text-xs text-gray-500 leading-relaxed">{card.notes}</p>
+          <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase mb-1.5">Notes</p>
+          <p className="text-xs text-muted leading-relaxed">{card.notes}</p>
         </div>
       )}
 
       {/* Annual fee */}
-      <div className="flex items-center justify-between pt-1 border-t border-gray-800">
-        <span className="text-xs text-gray-400">Annual fee</span>
-        <span className="text-xs font-semibold text-gray-300">
+      <div className="flex items-center justify-between pt-1 border-t border-outline">
+        <span className="text-xs text-on-surface-variant">Annual fee</span>
+        <span className="text-xs font-semibold text-on-surface">
           {card.annualFeeSgd === 0 ? 'Free' : `$${card.annualFeeSgd.toFixed(2)}`}
         </span>
       </div>
@@ -259,10 +259,10 @@ function DashboardCard({
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 overflow-hidden">
+    <div className="bg-surface rounded-2xl shadow-sm border border-outline overflow-hidden">
       {/* Card row — tappable header */}
       <button
-        className="w-full flex items-center gap-4 px-4 py-3.5 text-left hover:bg-gray-800 transition-colors"
+        className="w-full flex items-center gap-4 px-4 py-3.5 text-left hover:bg-surface-high transition-colors"
         onClick={() => setExpanded(e => !e)}
       >
         {/* Thumbnail */}
@@ -291,19 +291,19 @@ function DashboardCard({
         {/* Name & tagline */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <p className="text-sm font-semibold text-gray-100 truncate">{card.cardName}</p>
+            <p className="text-sm font-semibold text-on-surface truncate">{card.cardName}</p>
             {card.heymaxCompatible && (
               <span className="flex-shrink-0 text-[9px] font-bold text-teal-400 bg-teal-950 border border-teal-800 rounded-full px-1.5 py-0.5 leading-none">
                 HeyMax
               </span>
             )}
           </div>
-          <p className="text-xs text-gray-400 truncate mt-0.5">{card.tagline}</p>
+          <p className="text-xs text-on-surface-variant truncate mt-0.5">{card.tagline}</p>
         </div>
 
         {/* Chevron */}
         <svg
-          className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-on-surface-variant flex-shrink-0 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
           fill="none" viewBox="0 0 24 24" stroke="currentColor"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -343,10 +343,10 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
   const mcc5311Merchants = getMcc5311Merchants();
 
   return (
-    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 overflow-hidden mt-6">
+    <div className="bg-surface rounded-2xl shadow-sm border border-outline overflow-hidden mt-6">
       {/* Header — always visible */}
       <button
-        className="w-full flex items-center gap-3 px-4 py-4 text-left hover:bg-gray-800 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-4 text-left hover:bg-surface-high transition-colors"
         onClick={() => setExpanded(e => !e)}
       >
         {/* Icon */}
@@ -356,15 +356,15 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
 
         {/* Text */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-gray-100">HeyMax — Stack Max Miles</p>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-sm font-bold text-on-surface">HeyMax — Stack Max Miles</p>
+          <p className="text-xs text-on-surface-variant mt-0.5">
             Earn extra miles at 500+ merchants on top of your card
           </p>
         </div>
 
         {/* Chevron */}
         <svg
-          className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-on-surface-variant flex-shrink-0 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
           fill="none" viewBox="0 0 24 24" stroke="currentColor"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -373,10 +373,10 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
 
       {/* Expanded content */}
       {expanded && (
-        <div className="card-detail-enter border-t border-gray-800">
+        <div className="card-detail-enter border-t border-outline">
           {/* How it works */}
           <div className="px-4 pt-4 pb-3 space-y-3">
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <p className="text-xs text-on-surface-variant leading-relaxed">
               {HEYMAX_INFO.howItWorks}
             </p>
 
@@ -387,9 +387,9 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
                 { label: 'Transfer fee',   value: HEYMAX_INFO.transferFee },
                 { label: 'Programmes',     value: HEYMAX_INFO.numPartners },
               ].map(fact => (
-                <div key={fact.label} className="bg-gray-950 rounded-xl px-2.5 py-2 text-center">
-                  <p className="text-xs font-bold text-gray-100">{fact.value}</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5 leading-tight">{fact.label}</p>
+                <div key={fact.label} className="bg-background rounded-xl px-2.5 py-2 text-center">
+                  <p className="text-xs font-bold text-on-surface">{fact.value}</p>
+                  <p className="text-[10px] text-on-surface-variant mt-0.5 leading-tight">{fact.label}</p>
                 </div>
               ))}
             </div>
@@ -398,7 +398,7 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
           {/* Your compatible cards */}
           {compatibleCards.length > 0 && (
             <div className="px-4 pb-3">
-              <p className="text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-2">
+              <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">
                 Your HeyMax-compatible cards
               </p>
               <div className="flex flex-wrap gap-2">
@@ -434,7 +434,7 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
 
           {/* Category tabs */}
           <div className="px-4 pb-2">
-            <p className="text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-2">
+            <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">
               Top merchants by category
             </p>
             <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4">
@@ -444,8 +444,8 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
                   onClick={() => setActiveCategory(cat)}
                   className={`flex-shrink-0 flex items-center gap-1 text-[11px] font-semibold rounded-full px-3 py-1.5 transition-colors ${
                     activeCategory === cat
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                      ? 'bg-primary text-on-primary'
+                      : 'bg-surface-high text-on-surface-variant hover:bg-surface-bright'
                   }`}
                 >
                   <span>{CATEGORY_ICONS[cat]}</span>
@@ -462,7 +462,7 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
                 <div key={m.name} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-sm font-medium text-gray-100">{m.name}</span>
+                      <span className="text-sm font-medium text-on-surface">{m.name}</span>
                       {m.giftCardMcc5311 && (
                         <span className="text-[9px] font-bold text-amber-300 bg-amber-900 rounded-full px-1.5 py-0.5 leading-none">
                           MCC 5311
@@ -470,7 +470,7 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
                       )}
                     </div>
                     {m.notes && (
-                      <p className="text-[11px] text-gray-400 mt-0.5 leading-tight truncate">{m.notes}</p>
+                      <p className="text-[11px] text-on-surface-variant mt-0.5 leading-tight truncate">{m.notes}</p>
                     )}
                   </div>
                   <div className="flex-shrink-0 ml-3 text-right">
@@ -505,7 +505,7 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
               <span>✦</span>
               Visit HeyMax — heymax.ai
             </a>
-            <p className="text-[10px] text-gray-400 text-center mt-2 leading-relaxed">
+            <p className="text-[10px] text-on-surface-variant text-center mt-2 leading-relaxed">
               Earn rates are estimates. Always verify on heymax.ai before transacting.
             </p>
           </div>
@@ -542,8 +542,8 @@ export default function DashboardPage() {
 
   if (!mounted || !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950">
-        <div className="w-8 h-8 border-2 border-gray-700 border-t-gray-100 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-outline-bright border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
@@ -555,17 +555,17 @@ export default function DashboardPage() {
   const incomeLabel = bracketLabel(profile.incomeBracket);
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-background">
       {/* Top nav */}
-      <div className="sticky top-0 z-20 bg-gray-900 border-b border-gray-800 px-4 pb-4 header-safe">
+      <div className="sticky top-0 z-20 bg-surface border-b border-outline px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-gray-100">Vault</h1>
-            <p className="text-xs text-gray-400">Your card library · Income: {incomeLabel}</p>
+            <h1 className="text-lg font-bold text-on-surface">Vault</h1>
+            <p className="text-xs text-on-surface-variant">Your card library · Income: {incomeLabel}</p>
           </div>
           <button
             onClick={() => router.push('/onboarding/cards')}
-            className="text-xs font-semibold text-gray-400 bg-gray-800 hover:bg-gray-700 rounded-full px-3 py-1.5 transition-colors"
+            className="text-xs font-semibold text-on-surface-variant bg-surface-high hover:bg-surface-bright rounded-full px-3 py-1.5 transition-colors"
           >
             Edit cards
           </button>
@@ -575,24 +575,24 @@ export default function DashboardPage() {
       <div className="max-w-2xl mx-auto px-4 pt-6 pb-24">
         {/* Summary chip */}
         <div className="flex items-center gap-2 mb-5">
-          <span className="text-sm font-bold text-gray-100">
+          <span className="text-sm font-bold text-on-surface">
             {myCards.length} {myCards.length === 1 ? 'card' : 'cards'} in your wallet
           </span>
-          <span className="text-gray-600">·</span>
-          <span className="text-sm text-gray-500">tap any card to expand</span>
+          <span className="text-muted">·</span>
+          <span className="text-sm text-muted">tap any card to expand</span>
         </div>
 
         {myCards.length === 0 ? (
           /* Empty state */
           <div className="text-center py-20">
             <p className="text-4xl mb-4">💳</p>
-            <h2 className="text-base font-semibold text-gray-100 mb-2">No cards added yet</h2>
-            <p className="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
+            <h2 className="text-base font-semibold text-on-surface mb-2">No cards added yet</h2>
+            <p className="text-sm text-muted mb-6 max-w-xs mx-auto">
               Add the credit cards you own to see earn rates, caps, and transfer partners.
             </p>
             <button
               onClick={() => router.push('/onboarding/cards')}
-              className="px-6 py-3 rounded-2xl bg-gray-100 text-gray-900 font-semibold text-sm hover:bg-gray-300 transition-colors"
+              className="px-6 py-3 rounded-2xl bg-primary text-on-primary font-semibold text-sm hover:bg-primary-hover transition-colors"
             >
               Add cards
             </button>
@@ -612,7 +612,7 @@ export default function DashboardPage() {
             {/* Add more */}
             <button
               onClick={() => router.push('/onboarding/cards')}
-              className="w-full py-3.5 rounded-2xl border-2 border-dashed border-gray-700 text-sm font-semibold text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors"
+              className="w-full py-3.5 rounded-2xl border-2 border-dashed border-outline-bright text-sm font-semibold text-on-surface-variant hover:border-outline-bright hover:text-on-surface transition-colors"
             >
               + Add or remove cards
             </button>
@@ -623,7 +623,7 @@ export default function DashboardPage() {
         <HeyMaxSection myCards={myCards} />
 
         {/* Disclaimer */}
-        <p className="text-[11px] text-gray-400 text-center mt-8 leading-relaxed">
+        <p className="text-[11px] text-on-surface-variant text-center mt-8 leading-relaxed">
           Earn rates are indicative as of May 2026. Always verify with your bank&apos;s current terms before optimising spend.
         </p>
       </div>

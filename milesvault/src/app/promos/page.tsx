@@ -44,16 +44,16 @@ function PromoCard({
       ? 'bg-gray-300'
       : p.daysLeft <= 7
         ? 'bg-red-500'
-        : 'bg-gray-100';
+        : 'bg-primary';
 
   return (
-    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 px-4 py-4">
+    <div className="bg-surface rounded-2xl shadow-sm border border-outline px-4 py-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-sm font-bold text-gray-100">{promo.title}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{card?.cardName ?? promo.cardId}</p>
+          <p className="text-sm font-bold text-on-surface">{promo.title}</p>
+          <p className="text-xs text-on-surface-variant mt-0.5">{card?.cardName ?? promo.cardId}</p>
         </div>
-        <button onClick={onDelete} className="text-[10px] text-gray-600 hover:text-red-500 font-semibold flex-shrink-0">
+        <button onClick={onDelete} className="text-[10px] text-muted hover:text-red-500 font-semibold flex-shrink-0">
           Remove
         </button>
       </div>
@@ -61,12 +61,12 @@ function PromoCard({
       {/* Progress */}
       <div className="mt-3">
         <div className="flex items-baseline justify-between mb-1">
-          <span className="text-xs font-semibold text-gray-300">
-            ${p.spentSgd.toLocaleString()} <span className="text-gray-400 font-normal">of ${promo.targetSgd.toLocaleString()}</span>
+          <span className="text-xs font-semibold text-on-surface">
+            ${p.spentSgd.toLocaleString()} <span className="text-on-surface-variant font-normal">of ${promo.targetSgd.toLocaleString()}</span>
           </span>
           <span
             className={`text-[11px] font-bold ${
-              p.done ? 'text-green-400' : expired ? 'text-gray-400' : p.daysLeft <= 7 ? 'text-red-400' : 'text-gray-500'
+              p.done ? 'text-green-400' : expired ? 'text-on-surface-variant' : p.daysLeft <= 7 ? 'text-red-400' : 'text-muted'
             }`}
           >
             {p.done
@@ -76,11 +76,11 @@ function PromoCard({
                 : `${p.daysLeft} day${p.daysLeft === 1 ? '' : 's'} left`}
           </span>
         </div>
-        <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
+        <div className="h-2 rounded-full bg-surface-high overflow-hidden">
           <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${p.pct}%` }} />
         </div>
         <div className="flex items-center justify-between mt-1.5">
-          <p className="text-[11px] text-gray-400">
+          <p className="text-[11px] text-on-surface-variant">
             Deadline {fmtDate(promo.deadlineISO)} · {promo.rewardMiles.toLocaleString()} miles
           </p>
           {!p.done && !expired && (
@@ -92,8 +92,8 @@ function PromoCard({
       {/* Quick log */}
       {!p.done && !expired && (
         <div className="mt-3 flex items-center gap-2">
-          <div className="flex-1 flex items-center gap-1.5 bg-gray-950 rounded-xl px-3 py-2">
-            <span className="text-xs font-bold text-gray-400">S$</span>
+          <div className="flex-1 flex items-center gap-1.5 bg-background rounded-xl px-3 py-2">
+            <span className="text-xs font-bold text-on-surface-variant">S$</span>
             <input
               type="number"
               inputMode="decimal"
@@ -101,7 +101,7 @@ function PromoCard({
               placeholder="Log spend on this card"
               value={logStr}
               onChange={e => setLogStr(e.target.value)}
-              className="flex-1 bg-transparent text-sm font-semibold text-gray-100 placeholder:text-gray-600 placeholder:font-normal placeholder:text-xs outline-none"
+              className="flex-1 bg-transparent text-sm font-semibold text-on-surface placeholder:text-muted placeholder:font-normal placeholder:text-xs outline-none"
             />
           </div>
           <button
@@ -112,14 +112,14 @@ function PromoCard({
                 setLogStr('');
               }
             }}
-            className="text-xs font-bold bg-gray-100 text-gray-900 rounded-xl px-4 py-2.5 hover:bg-gray-300 transition-colors"
+            className="text-xs font-bold bg-primary text-on-primary rounded-xl px-4 py-2.5 hover:bg-primary-hover transition-colors"
           >
             Log
           </button>
         </div>
       )}
 
-      {promo.notes && <p className="text-[11px] text-gray-400 mt-3 leading-relaxed">{promo.notes}</p>}
+      {promo.notes && <p className="text-[11px] text-on-surface-variant mt-3 leading-relaxed">{promo.notes}</p>}
     </div>
   );
 }
@@ -134,21 +134,21 @@ function SeededRow({ seed, owned, onStart }: { seed: SeededPromo; owned: boolean
   const costPerMile = seed.annualFeeSgd > 0 ? (seed.annualFeeSgd / seed.bonusMiles) * 100 : 0;
 
   return (
-    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 overflow-hidden">
-      <button className="w-full px-4 py-3 text-left hover:bg-gray-800 transition-colors" onClick={() => setExpanded(e => !e)}>
+    <div className="bg-surface rounded-2xl shadow-sm border border-outline overflow-hidden">
+      <button className="w-full px-4 py-3 text-left hover:bg-surface-high transition-colors" onClick={() => setExpanded(e => !e)}>
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-100 truncate">{card?.cardName ?? seed.cardId}</p>
-            <p className="text-xs text-gray-400 truncate">
+            <p className="text-sm font-semibold text-on-surface truncate">{card?.cardName ?? seed.cardId}</p>
+            <p className="text-xs text-on-surface-variant truncate">
               ${seed.minSpendSgd.toLocaleString()} spend → {seed.bonusMiles.toLocaleString()} miles
               {seed.annualFeeSgd > 0 ? ` · $${seed.annualFeeSgd.toFixed(0)} fee` : ' · no fee'}
             </p>
           </div>
           <div className="text-right flex-shrink-0">
-            <p className={`text-xs font-bold ${applyByPassed ? 'text-red-500' : 'text-gray-300'}`}>
+            <p className={`text-xs font-bold ${applyByPassed ? 'text-red-500' : 'text-on-surface'}`}>
               {applyByPassed ? 'Ended' : `Apply by ${fmtDate(seed.applyByISO)}`}
             </p>
-            <p className="text-[10px] text-gray-400">
+            <p className="text-[10px] text-on-surface-variant">
               {costPerMile > 0 ? `${costPerMile.toFixed(2)}¢/mile` : 'Free miles'}
               {owned && ' · in wallet'}
             </p>
@@ -157,28 +157,28 @@ function SeededRow({ seed, owned, onStart }: { seed: SeededPromo; owned: boolean
       </button>
 
       {expanded && (
-        <div className="border-t border-gray-800 bg-gray-950 px-4 py-3 space-y-3">
-          {seed.notes && <p className="text-[11px] text-gray-500 leading-relaxed">{seed.notes}</p>}
-          <p className="text-[11px] text-gray-500">
+        <div className="border-t border-outline bg-background px-4 py-3 space-y-3">
+          {seed.notes && <p className="text-[11px] text-muted leading-relaxed">{seed.notes}</p>}
+          <p className="text-[11px] text-muted">
             Min spend window: <strong>{seed.spendWindowDays} days from card approval</strong>
             {seed.eligibility === 'NTB' && ' · New-to-bank customers only'}
             {seed.eligibility === 'ETB' && ' · Existing customers'}
           </p>
           <div className="flex items-center gap-2">
             <div className="flex-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">
+              <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-1">
                 Card approval date
               </label>
               <input
                 type="date"
                 value={approvalISO}
                 onChange={e => setApprovalISO(e.target.value)}
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-100 outline-none"
+                className="w-full bg-surface border border-outline-bright rounded-xl px-3 py-2 text-sm text-on-surface outline-none"
               />
             </div>
             <button
               onClick={() => onStart(approvalISO)}
-              className="self-end text-xs font-bold bg-gray-100 text-gray-900 rounded-xl px-4 py-2.5 hover:bg-gray-300 transition-colors"
+              className="self-end text-xs font-bold bg-primary text-on-primary rounded-xl px-4 py-2.5 hover:bg-primary-hover transition-colors"
             >
               Track this
             </button>
@@ -201,11 +201,11 @@ function CustomPromoForm({ onAdd }: { onAdd: (p: Omit<ActivePromo, 'id'>) => voi
   const valid = title.trim() && parseFloat(target) > 0 && parseFloat(reward) > 0 && deadline;
 
   return (
-    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 px-4 py-4 space-y-3">
+    <div className="bg-surface rounded-2xl shadow-sm border border-outline px-4 py-4 space-y-3">
       <select
         value={cardId}
         onChange={e => setCardId(e.target.value)}
-        className="w-full bg-gray-950 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-100 outline-none"
+        className="w-full bg-background border border-outline-bright rounded-xl px-3 py-2.5 text-sm text-on-surface outline-none"
       >
         {CARDS.filter(c => !c.isAmazePairingCard).map(c => (
           <option key={c.id} value={c.id}>{c.cardName}</option>
@@ -216,7 +216,7 @@ function CustomPromoForm({ onAdd }: { onAdd: (p: Omit<ActivePromo, 'id'>) => voi
         placeholder="Promo name, e.g. 30k miles welcome offer"
         value={title}
         onChange={e => setTitle(e.target.value)}
-        className="w-full bg-gray-950 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-100 placeholder:text-gray-600 outline-none"
+        className="w-full bg-background border border-outline-bright rounded-xl px-3 py-2.5 text-sm text-on-surface placeholder:text-muted outline-none"
       />
       <div className="grid grid-cols-2 gap-2">
         <input
@@ -224,25 +224,25 @@ function CustomPromoForm({ onAdd }: { onAdd: (p: Omit<ActivePromo, 'id'>) => voi
           placeholder="Min spend S$"
           value={target}
           onChange={e => setTarget(e.target.value)}
-          className="bg-gray-950 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-100 placeholder:text-gray-600 outline-none"
+          className="bg-background border border-outline-bright rounded-xl px-3 py-2.5 text-sm text-on-surface placeholder:text-muted outline-none"
         />
         <input
           type="number" inputMode="numeric" min="0"
           placeholder="Reward miles"
           value={reward}
           onChange={e => setReward(e.target.value)}
-          className="bg-gray-950 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-100 placeholder:text-gray-600 outline-none"
+          className="bg-background border border-outline-bright rounded-xl px-3 py-2.5 text-sm text-on-surface placeholder:text-muted outline-none"
         />
       </div>
       <div>
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">
+        <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-1">
           Spend deadline
         </label>
         <input
           type="date"
           value={deadline}
           onChange={e => setDeadline(e.target.value)}
-          className="w-full bg-gray-950 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-100 outline-none"
+          className="w-full bg-background border border-outline-bright rounded-xl px-3 py-2.5 text-sm text-on-surface outline-none"
         />
       </div>
       <button
@@ -257,7 +257,7 @@ function CustomPromoForm({ onAdd }: { onAdd: (p: Omit<ActivePromo, 'id'>) => voi
             deadlineISO: deadline,
           })
         }
-        className="w-full py-3 rounded-2xl bg-gray-100 text-gray-900 font-semibold text-sm disabled:opacity-30 hover:bg-gray-300 transition-colors"
+        className="w-full py-3 rounded-2xl bg-primary text-on-primary font-semibold text-sm disabled:opacity-30 hover:bg-primary-hover transition-colors"
       >
         Track promo
       </button>
@@ -289,8 +289,8 @@ export default function PromosPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950">
-        <div className="w-8 h-8 border-2 border-gray-700 border-t-gray-100 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-outline-bright border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
@@ -329,12 +329,12 @@ export default function PromosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       {/* Top nav */}
-      <div className="sticky top-0 z-20 bg-gray-900 border-b border-gray-800 px-4 pb-4 header-safe">
+      <div className="sticky top-0 z-20 bg-surface border-b border-outline px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-lg font-bold text-gray-100">Sign-up bonus tracker</h1>
-          <p className="text-xs text-gray-400">Never miss a min-spend deadline — the cheapest miles you&apos;ll ever earn</p>
+          <h1 className="text-lg font-bold text-on-surface">Sign-up bonus tracker</h1>
+          <p className="text-xs text-on-surface-variant">Never miss a min-spend deadline — the cheapest miles you&apos;ll ever earn</p>
         </div>
       </div>
 
@@ -342,7 +342,7 @@ export default function PromosPage() {
         {/* Active promos */}
         {promos.length > 0 && (
           <div className="mb-7">
-            <p className="text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-2">
+            <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">
               Your tracked promos
             </p>
             <div className="space-y-3">
@@ -361,16 +361,16 @@ export default function PromosPage() {
 
         {/* Add new */}
         <div className="flex items-center gap-2 mb-3">
-          <p className="text-[11px] font-bold tracking-widest text-gray-400 uppercase flex-1">
+          <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase flex-1">
             Add a promo
           </p>
-          <div className="flex bg-gray-800 rounded-full p-0.5">
+          <div className="flex bg-surface-high rounded-full p-0.5">
             {(['offers', 'custom'] as const).map(t => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 className={`text-[11px] font-semibold rounded-full px-3 py-1 transition-colors ${
-                  tab === t ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-500'
+                  tab === t ? 'bg-primary text-on-primary shadow-sm' : 'text-muted'
                 }`}
               >
                 {t === 'offers' ? 'Current offers' : 'Custom'}
@@ -381,7 +381,7 @@ export default function PromosPage() {
 
         {tab === 'offers' ? (
           <>
-            <p className="text-[11px] text-gray-400 mb-3 leading-relaxed">
+            <p className="text-[11px] text-on-surface-variant mb-3 leading-relaxed">
               Verified against MileLion&apos;s June 2026 roundup. Offers vary by channel (direct vs SingSaver) and
               change monthly — confirm the live T&amp;Cs before applying. Tap an offer to start tracking after approval.
             </p>
@@ -395,7 +395,7 @@ export default function PromosPage() {
                 />
               ))}
               {availableSeeds.length === 0 && (
-                <p className="text-sm text-gray-400 text-center py-8">All current offers are already tracked.</p>
+                <p className="text-sm text-on-surface-variant text-center py-8">All current offers are already tracked.</p>
               )}
             </div>
           </>

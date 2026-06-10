@@ -15,7 +15,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-30 bg-gray-900 border-t border-gray-800 nav-safe">
+    <nav className="fixed bottom-0 inset-x-0 z-30 bg-surface border-t border-outline nav-safe">
       <div className="max-w-2xl mx-auto grid grid-cols-5">
         {TABS.map(tab => {
           const active = pathname.startsWith(tab.href);
@@ -24,7 +24,7 @@ export default function BottomNav() {
               key={tab.href}
               onClick={() => router.push(tab.href)}
               className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold transition-colors ${
-                active ? 'text-gray-100' : 'text-gray-400 hover:text-gray-300'
+                active ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
               <span className="text-lg leading-none">{tab.icon}</span>

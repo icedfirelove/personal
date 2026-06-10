@@ -18,8 +18,8 @@ export default function RootPage() {
 
   // Blank while redirecting
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950">
-      <div className="w-8 h-8 border-2 border-gray-700 border-t-gray-100 rounded-full animate-spin" />
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="w-8 h-8 border-2 border-outline-bright border-t-primary rounded-full animate-spin" />
     </div>
   );
 }

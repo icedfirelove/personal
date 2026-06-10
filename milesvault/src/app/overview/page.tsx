@@ -53,7 +53,7 @@ function SummaryRow({ summary }: { summary: CardPeriodSummary }) {
   const { card } = summary;
 
   return (
-    <div className="bg-gray-900 rounded-2xl shadow-sm border border-gray-800 px-4 py-3.5">
+    <div className="bg-surface rounded-2xl shadow-sm border border-outline px-4 py-3.5">
       <div className="flex items-center gap-3">
         {/* Thumbnail */}
         <div
@@ -80,19 +80,19 @@ function SummaryRow({ summary }: { summary: CardPeriodSummary }) {
 
         {/* Name + spend */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-100 truncate">{card.cardName}</p>
-          <p className="text-[11px] text-gray-400">
+          <p className="text-sm font-semibold text-on-surface truncate">{card.cardName}</p>
+          <p className="text-[11px] text-on-surface-variant">
             ${Math.round(summary.spentSgd).toLocaleString()} spent this period
           </p>
         </div>
 
         {/* Miles */}
         <div className="text-right flex-shrink-0">
-          <p className="text-base font-bold text-gray-100">
+          <p className="text-base font-bold text-on-surface">
             {Math.round(summary.milesEarned).toLocaleString()}
-            <span className="text-[10px] font-semibold text-gray-400"> mi</span>
+            <span className="text-[10px] font-semibold text-on-surface-variant"> mi</span>
           </p>
-          <p className="text-[10px] text-gray-400">this period</p>
+          <p className="text-[10px] text-on-surface-variant">this period</p>
         </div>
       </div>
 
@@ -105,22 +105,22 @@ function SummaryRow({ summary }: { summary: CardPeriodSummary }) {
             return (
               <div key={g.capSgd + g.labels.join()}>
                 <div className="flex items-baseline justify-between mb-0.5">
-                  <span className="text-[10px] text-gray-400 truncate pr-2">
+                  <span className="text-[10px] text-on-surface-variant truncate pr-2">
                     {g.mpd} mpd · {g.labels.join(' / ')}
                   </span>
-                  <span className={`text-[10px] font-bold flex-shrink-0 ${pct >= 100 ? 'text-red-400' : 'text-gray-400'}`}>
+                  <span className={`text-[10px] font-bold flex-shrink-0 ${pct >= 100 ? 'text-red-400' : 'text-on-surface-variant'}`}>
                     {pct >= 100
                       ? 'Cap hit'
                       : `$${Math.round(g.remainingSgd).toLocaleString()} to cap`}
                   </span>
                 </div>
-                <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
+                <div className="h-1.5 rounded-full bg-surface-high overflow-hidden">
                   <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
                 </div>
               </div>
             );
           })}
-          <p className="text-[10px] text-gray-600">Resets in {summary.resetInDays} day{summary.resetInDays === 1 ? '' : 's'}</p>
+          <p className="text-[10px] text-muted">Resets in {summary.resetInDays} day{summary.resetInDays === 1 ? '' : 's'}</p>
         </div>
       )}
     </div>
@@ -159,27 +159,27 @@ export default function OverviewPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950">
-        <div className="w-8 h-8 border-2 border-gray-700 border-t-gray-100 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-outline-bright border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       {/* Top nav */}
-      <div className="sticky top-0 z-20 bg-gray-900 border-b border-gray-800 px-4 pb-4 header-safe">
+      <div className="sticky top-0 z-20 bg-surface border-b border-outline px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-gray-100">Overview</h1>
-            <p className="text-xs text-gray-400">Your miles & caps this period</p>
+            <h1 className="text-lg font-bold text-on-surface">Overview</h1>
+            <p className="text-xs text-on-surface-variant">Your miles & caps this period</p>
           </div>
           <div className="text-right">
-            <p className="text-base font-bold text-gray-100">
+            <p className="text-base font-bold text-on-surface">
               {Math.round(totals.miles).toLocaleString()}
-              <span className="text-[10px] font-semibold text-gray-400"> mi</span>
+              <span className="text-[10px] font-semibold text-on-surface-variant"> mi</span>
             </p>
-            <p className="text-[10px] text-gray-400">${Math.round(totals.spend).toLocaleString()} tracked</p>
+            <p className="text-[10px] text-on-surface-variant">${Math.round(totals.spend).toLocaleString()} tracked</p>
           </div>
         </div>
       </div>
@@ -190,13 +190,13 @@ export default function OverviewPage() {
         {summaries.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-4xl mb-4">💳</p>
-            <h2 className="text-base font-semibold text-gray-100 mb-2">No cards yet</h2>
-            <p className="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
+            <h2 className="text-base font-semibold text-on-surface mb-2">No cards yet</h2>
+            <p className="text-sm text-muted mb-6 max-w-xs mx-auto">
               Add your cards in the Vault tab to start tracking miles and caps.
             </p>
             <button
               onClick={() => router.push('/onboarding/cards')}
-              className="px-6 py-3 rounded-2xl bg-gray-100 text-gray-900 font-semibold text-sm hover:bg-gray-300 transition-colors"
+              className="px-6 py-3 rounded-2xl bg-primary text-on-primary font-semibold text-sm hover:bg-primary-hover transition-colors"
             >
               Add cards
             </button>
@@ -208,7 +208,7 @@ export default function OverviewPage() {
                 <SummaryRow key={s.card.id} summary={s} />
               ))}
             </div>
-            <p className="text-[11px] text-gray-400 text-center mt-6 leading-relaxed">
+            <p className="text-[11px] text-on-surface-variant text-center mt-6 leading-relaxed">
               Numbers are based on transactions you&apos;ve logged. Log spend in the Txns tab or via the Swipe recommender.
             </p>
           </>
