@@ -438,7 +438,7 @@ function HeyMaxSection({ myCards }: { myCards: Card[] }) {
             <p className="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">
               Top merchants by category
             </p>
-            <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4">
+            <div className="flex flex-wrap gap-1.5 pb-1">
               {HEYMAX_CATEGORIES.map(cat => (
                 <button
                   key={cat}

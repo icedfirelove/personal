@@ -153,7 +153,7 @@ export default function CardsPage() {
           </div>
 
           {/* Bank filter pills */}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="flex flex-wrap gap-2 pb-1">
             {allBanks.map(bank => (
               <button
                 key={bank}

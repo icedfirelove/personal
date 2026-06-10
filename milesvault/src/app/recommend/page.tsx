@@ -370,7 +370,7 @@ export default function RecommendPage() {
             </div>
 
             {/* Category chips + Not sure */}
-            <div className="flex gap-1.5 overflow-x-auto pb-2 -mx-4 px-4">
+            <div className="flex flex-wrap gap-1.5 pb-2">
               <button
                 onClick={() => setNotSure(s => !s)}
                 className={`flex-shrink-0 flex items-center gap-1 text-[11px] font-semibold rounded-full px-3 py-1.5 transition-colors ${
