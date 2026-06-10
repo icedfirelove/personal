@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CARDS, getCard } from '@/data/cards';
-import { SEEDED_PROMOS, type SeededPromo } from '@/data/promos';
+import { type SeededPromo } from '@/data/promos';
+import { getPromoFeed, refreshPromoFeed, timeAgo, type PromoFeed } from '@/lib/remotePromos';
+import PullToRefresh from '@/components/PullToRefresh';
 import { loadProfile } from '@/lib/storage';
 import {
   loadSpend,
@@ -275,6 +277,9 @@ export default function PromosPage() {
   const [entries, setEntries] = useState<SpendEntry[]>([]);
   const [promos, setPromos] = useState<ActivePromo[]>([]);
   const [tab, setTab] = useState<'offers' | 'custom'>('offers');
+  const [feed, setFeed] = useState<PromoFeed>({ promos: [], lastVerified: null, fetchedAt: null });
+  const [refreshError, setRefreshError] = useState(false);
+  const [justRefreshed, setJustRefreshed] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -286,14 +291,28 @@ export default function PromosPage() {
     setMyCardIds(p.selectedCardIds);
     setEntries(loadSpend());
     setPromos(loadPromos());
+    setFeed(getPromoFeed());
   }, [router]);
+
+  async function handleRefresh() {
+    setRefreshError(false);
+    try {
+      const fresh = await refreshPromoFeed();
+      setFeed(fresh);
+      setJustRefreshed(true);
+      setTimeout(() => setJustRefreshed(false), 2500);
+    } catch {
+      setRefreshError(true);
+      setTimeout(() => setRefreshError(false), 4000);
+    }
+  }
 
   if (!mounted) {
     return <PageSkeleton />;
   }
 
   const trackedSeedIds = new Set(promos.map(p => p.seedId).filter(Boolean));
-  const availableSeeds = SEEDED_PROMOS.filter(s => !trackedSeedIds.has(s.seedId));
+  const availableSeeds = feed.promos.filter(s => !trackedSeedIds.has(s.seedId));
 
   function startSeeded(seed: SeededPromo, approvalISO: string) {
     const deadline = new Date(approvalISO);
@@ -329,12 +348,31 @@ export default function PromosPage() {
     <div className="min-h-screen bg-background pb-20">
       {/* Top nav */}
       <div className="sticky top-0 z-20 bg-surface border-b border-outline px-4 pb-4 header-safe">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-lg font-bold text-on-surface">Sign-up bonus tracker</h1>
-          <p className="text-xs text-on-surface-variant">Never miss a min-spend deadline — the cheapest miles you&apos;ll ever earn</p>
+        <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-lg font-bold text-on-surface">Sign-up bonus tracker</h1>
+            <p className="text-xs text-on-surface-variant truncate">Never miss a min-spend deadline</p>
+          </div>
+          <button
+            onClick={handleRefresh}
+            className="flex-shrink-0 text-right group"
+            title="Check for new promos"
+          >
+            <p className="text-[11px] font-semibold text-primary group-hover:underline">↻ Refresh</p>
+            <p className="text-[10px] text-muted">
+              {justRefreshed
+                ? '✓ Up to date'
+                : refreshError
+                  ? 'Offline — using saved'
+                  : feed.fetchedAt
+                    ? `Updated ${timeAgo(feed.fetchedAt)}`
+                    : 'Bundled data'}
+            </p>
+          </button>
         </div>
       </div>
 
+      <PullToRefresh onRefresh={handleRefresh}>
       <div className="max-w-2xl mx-auto px-4 pt-5">
         {/* Active promos */}
         {promos.length > 0 && (
@@ -379,8 +417,9 @@ export default function PromosPage() {
         {tab === 'offers' ? (
           <>
             <p className="text-[11px] text-on-surface-variant mb-3 leading-relaxed">
-              Verified against MileLion&apos;s June 2026 roundup. Offers vary by channel (direct vs SingSaver) and
-              change monthly — confirm the live T&amp;Cs before applying. Tap an offer to start tracking after approval.
+              Verified against MileLion{feed.lastVerified ? ` as of ${fmtDate(feed.lastVerified)}` : ''}. Offers vary
+              by channel (direct vs SingSaver) and change monthly — confirm the live T&amp;Cs before applying.
+              Pull down to check for updates.
             </p>
             <div className="space-y-2.5">
               {availableSeeds.map(seed => (
@@ -405,6 +444,7 @@ export default function PromosPage() {
           />
         )}
       </div>
+      </PullToRefresh>
 
       <BottomNav />
     </div>
