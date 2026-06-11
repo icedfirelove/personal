@@ -107,6 +107,13 @@ const MERCHANTS: MerchantDef[] = [
   { keywords: ['mrt', 'simplygo', 'ezlink', 'ez-link', 'ez link'], display: 'Public Transport', category: 'transport' },
   { keywords: ['bluesg'],                          display: 'BlueSG',          category: 'transport' },
   { keywords: ['parking', 'erp', 'carpark'],       display: 'Parking',         category: 'transport' },
+  // Entertainment
+  { keywords: ['golden village', 'gv cinema', 'gvcinemas'], display: 'Golden Village', category: 'entertainment' },
+  { keywords: ['shaw theatres', 'shaw cinema'],    display: 'Shaw Theatres',   category: 'entertainment' },
+  { keywords: ['cathay cineplex', 'cineplex'],     display: 'Cathay Cineplexes', category: 'entertainment' },
+  { keywords: ['zouk'],                            display: 'Zouk',            category: 'entertainment' },
+  { keywords: ['timbre'],                          display: 'Timbre',          category: 'entertainment' },
+  { keywords: ['teo heng', 'manekineko', 'maneki neko'], display: 'Karaoke',   category: 'entertainment' },
   // Travel
   { keywords: ['agoda'],                           display: 'Agoda',           category: 'travel' },
   { keywords: ['booking.com', 'booking'],          display: 'Booking.com',     category: 'travel' },
@@ -170,6 +177,8 @@ const CATEGORY_WORDS: Record<string, SpendCategory> = {
   travel: 'travel', hotel: 'travel', flight: 'travel', flights: 'travel', staycay: 'travel', staycation: 'travel',
   transport: 'transport', taxi: 'transport', cab: 'transport', bus: 'transport', train: 'transport',
   petrol: 'petrol', fuel: 'petrol', gas: 'petrol',
+  entertainment: 'entertainment', cinema: 'entertainment', movie: 'entertainment', movies: 'entertainment',
+  ktv: 'entertainment', karaoke: 'entertainment', clubbing: 'entertainment', concert: 'entertainment',
   tap: 'contactless', paywave: 'contactless', contactless: 'contactless',
   groceries: 'contactless', grocery: 'contactless', supermarket: 'contactless',
   overseas: 'fcy', fcy: 'fcy', foreign: 'fcy', jb: 'fcy', bangkok: 'fcy', japan: 'fcy',
@@ -205,6 +214,7 @@ const GENERIC_HINTS: [string, SpendCategory][] = [
   ['boutique', 'shopping'], ['outlet', 'shopping'],
   ['minimart', 'contactless'], ['market', 'contactless'],
   ['pharmacy', 'general'], ['dental', 'general'], ['hospital', 'general'],
+  ['cinema', 'entertainment'], ['karaoke', 'entertainment'], ['arcade', 'entertainment'],
 ];
 
 // Shorthand the miles community uses for card names → substring of the real name

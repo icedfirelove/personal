@@ -10,6 +10,7 @@ import {
   isGeneralLabel,
   isConditionalLabel,
   isContactlessLabel,
+  uobOptionsToCategories,
 } from '@/lib/categories';
 
 // ─── Types ─────────────────────────────────────────────────────
@@ -37,7 +38,8 @@ export interface ActivePromo {
 }
 
 export interface UserSettings {
-  statementDays: Record<string, number>; // cardId → statement day (1–28)
+  statementDays: Record<string, number>;   // cardId → statement day (1–28)
+  uobOptions: Record<string, string[]>;    // cardId → chosen UOB Lady's option ids (see UOB_LADYS_OPTIONS)
 }
 
 const SPEND_KEY = 'milesvault_spend';
@@ -90,13 +92,38 @@ export function deleteSpend(id: string): SpendEntry[] {
 // ─── Settings ──────────────────────────────────────────────────
 
 export function loadSettings(): UserSettings {
-  if (typeof window === 'undefined') return { statementDays: {} };
+  if (typeof window === 'undefined') return { statementDays: {}, uobOptions: {} };
   try {
     const raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}');
-    return { statementDays: {}, ...raw };
+    return { statementDays: {}, uobOptions: {}, ...raw };
   } catch {
-    return { statementDays: {} };
+    return { statementDays: {}, uobOptions: {} };
   }
+}
+
+/** Set the user's chosen quarterly UOB Lady's bonus options for a card. */
+export function setUobOptions(cardId: string, optionIds: string[]): UserSettings {
+  const s = loadSettings();
+  if (optionIds.length === 0) delete s.uobOptions[cardId];
+  else s.uobOptions[cardId] = optionIds;
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  return s;
+}
+
+/**
+ * Conditional rates (UOB Lady's "chosen category") only apply when the user
+ * has told us their picks. Unset = optimistic match with a warning badge.
+ */
+function conditionalAllows(
+  cardId: string,
+  label: string,
+  category: SpendCategory,
+  settings: UserSettings,
+): boolean {
+  if (!isConditionalLabel(label)) return true;
+  const chosen = settings.uobOptions?.[cardId];
+  if (!chosen || chosen.length === 0) return true;
+  return uobOptionsToCategories(chosen).includes(category);
 }
 
 export function setStatementDay(cardId: string, day: number | null): UserSettings {
@@ -189,7 +216,11 @@ export function getCapGroups(
   return [...byCap.entries()].map(([capSgd, rates]) => {
     const labels = rates.map(r => r.label);
     const spentSgd = cardEntries
-      .filter(e => rates.some(r => rateMatchesCategory(r.label, e.category)))
+      .filter(e =>
+        rates.some(
+          r => rateMatchesCategory(r.label, e.category) && conditionalAllows(card.id, r.label, e.category, settings),
+        ),
+      )
       .reduce((sum, e) => sum + e.amountSgd, 0);
     return {
       capSgd,
@@ -237,7 +268,10 @@ export function cardPeriodSummary(
 
   for (const e of cardEntries) {
     const matches = card.earnRates.filter(
-      r => !isGeneralLabel(r.label) && rateMatchesCategory(r.label, e.category),
+      r =>
+        !isGeneralLabel(r.label) &&
+        rateMatchesCategory(r.label, e.category) &&
+        conditionalAllows(card.id, r.label, e.category, settings),
     );
     const bonus = matches.length ? matches.reduce((a, b) => (b.mpd > a.mpd ? b : a)) : null;
     if (!bonus || bonus.mpd <= general) {
@@ -296,9 +330,13 @@ export function recommendCards(
         .filter(r => isGeneralLabel(r.label))
         .reduce((best, r) => Math.max(best, r.mpd), 0);
 
-      // Best bonus rate covering this category
+      // Best bonus rate covering this category (conditional rates only if
+      // the user's chosen categories include it — or no choice saved yet)
       const matches = card.earnRates.filter(
-        r => !isGeneralLabel(r.label) && rateMatchesCategory(r.label, category),
+        r =>
+          !isGeneralLabel(r.label) &&
+          rateMatchesCategory(r.label, category) &&
+          conditionalAllows(card.id, r.label, category, settings),
       );
       const bonus = matches.length
         ? matches.reduce((a, b) => (b.mpd > a.mpd ? b : a))
@@ -332,7 +370,10 @@ export function recommendCards(
         milesEarned,
         effectiveMpd: amountSgd > 0 ? milesEarned / amountSgd : 0,
         hitsCap,
-        conditional: bonus ? isConditionalLabel(bonus.label) : false,
+        // Only "conditional" (uncertain) when the user hasn't saved their picks
+        conditional: bonus
+          ? isConditionalLabel(bonus.label) && !(settings.uobOptions?.[card.id]?.length)
+          : false,
         amazeBoost: category === 'online' && card.amazeCompatible,
         tapToPay:
           !!bonus &&

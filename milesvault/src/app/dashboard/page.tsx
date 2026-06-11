@@ -16,12 +16,69 @@ import {
   loadSpend,
   loadSettings,
   setStatementDay,
+  setUobOptions,
   getCapGroups,
   daysUntilReset,
   usesStatementCycle,
   type SpendEntry,
   type UserSettings,
 } from '@/lib/spend';
+import { isConditionalLabel, UOB_LADYS_OPTIONS } from '@/lib/categories';
+
+// ─── Bonus category picker (UOB Lady's cards) ─────────────────
+
+function BonusCategoryPicker({
+  card,
+  settings,
+  onChange,
+}: {
+  card: Card;
+  settings: UserSettings;
+  onChange: (optionIds: string[]) => void;
+}) {
+  const maxPicks = card.earnRates.filter(r => isConditionalLabel(r.label)).length;
+  if (maxPicks === 0) return null;
+  const chosen = settings.uobOptions?.[card.id] ?? [];
+
+  function toggle(id: string) {
+    if (chosen.includes(id)) {
+      onChange(chosen.filter(c => c !== id));
+    } else if (chosen.length < maxPicks) {
+      onChange([...chosen, id]);
+    } else {
+      // at capacity: replace the oldest pick
+      onChange([...chosen.slice(1), id]);
+    }
+  }
+
+  return (
+    <div className="bg-blue-950 border border-blue-900 rounded-xl px-3 py-2.5">
+      <p className="text-xs font-semibold text-blue-200">
+        Your chosen bonus {maxPicks === 1 ? 'category' : `categories (pick ${maxPicks})`}
+      </p>
+      <p className="text-[10px] text-blue-300 mt-0.5 mb-2 leading-relaxed">
+        Match this to your selection in the UOB TMRW app — Swipe will only recommend this card for these.
+        {chosen.length === 0 && ' Nothing set: the card shows as "only if chosen" everywhere.'}
+      </p>
+      <div className="flex flex-wrap gap-1.5" onClick={e => e.stopPropagation()}>
+        {UOB_LADYS_OPTIONS.map(opt => {
+          const active = chosen.includes(opt.id);
+          return (
+            <button
+              key={opt.id}
+              onClick={() => toggle(opt.id)}
+              className={`text-[11px] font-semibold rounded-full px-2.5 py-1 transition-colors ${
+                active ? 'bg-primary text-on-primary' : 'bg-surface-high text-on-surface-variant hover:bg-surface-bright'
+              }`}
+            >
+              {opt.icon} {opt.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 import BottomNav from '@/components/BottomNav';
 import PageSkeleton from '@/components/PageSkeleton';
 
@@ -98,11 +155,13 @@ function CardDetail({
   entries,
   settings,
   onStatementDayChange,
+  onChosenCategoriesChange,
 }: {
   card: Card;
   entries: SpendEntry[];
   settings: UserSettings;
   onStatementDayChange: (day: number | null) => void;
+  onChosenCategoriesChange: (optionIds: string[]) => void;
 }) {
   if (card.isAmazePairingCard) {
     return (
@@ -148,6 +207,9 @@ function CardDetail({
         settings={settings}
         onStatementDayChange={onStatementDayChange}
       />
+
+      {/* Quarterly bonus category picker (UOB Lady's) */}
+      <BonusCategoryPicker card={card} settings={settings} onChange={onChosenCategoriesChange} />
 
       {/* Cap Reset */}
       {card.earnRates.some(r => r.capSgd != null) && (
@@ -250,11 +312,13 @@ function DashboardCard({
   entries,
   settings,
   onStatementDayChange,
+  onChosenCategoriesChange,
 }: {
   card: Card;
   entries: SpendEntry[];
   settings: UserSettings;
   onStatementDayChange: (day: number | null) => void;
+  onChosenCategoriesChange: (optionIds: string[]) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -318,6 +382,7 @@ function DashboardCard({
           entries={entries}
           settings={settings}
           onStatementDayChange={onStatementDayChange}
+          onChosenCategoriesChange={onChosenCategoriesChange}
         />
       )}
     </div>
@@ -523,7 +588,7 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mounted, setMounted] = useState(false);
   const [entries, setEntries] = useState<SpendEntry[]>([]);
-  const [settings, setSettings] = useState<UserSettings>({ statementDays: {} });
+  const [settings, setSettings] = useState<UserSettings>({ statementDays: {}, uobOptions: {} });
 
   useEffect(() => {
     setMounted(true);
@@ -539,6 +604,10 @@ export default function DashboardPage() {
 
   function handleStatementDayChange(cardId: string, day: number | null) {
     setSettings({ ...setStatementDay(cardId, day) });
+  }
+
+  function handleChosenCategoriesChange(cardId: string, optionIds: string[]) {
+    setSettings({ ...setUobOptions(cardId, optionIds) });
   }
 
   if (!mounted || !profile) {
@@ -601,6 +670,7 @@ export default function DashboardPage() {
                 entries={entries}
                 settings={settings}
                 onStatementDayChange={day => handleStatementDayChange(card.id, day)}
+                onChosenCategoriesChange={cats => handleChosenCategoriesChange(card.id, cats)}
               />
             ))}
 

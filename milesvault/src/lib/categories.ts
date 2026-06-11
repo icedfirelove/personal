@@ -11,6 +11,7 @@ export type SpendCategory =
   | 'travel'
   | 'transport'
   | 'petrol'
+  | 'entertainment'
   | 'contactless'
   | 'fcy'
   | 'general';
@@ -22,6 +23,7 @@ export const CATEGORIES: { value: SpendCategory; label: string; icon: string; hi
   { value: 'travel',      label: 'Travel',          icon: '✈️', hint: 'Flights, hotels, travel bookings' },
   { value: 'transport',   label: 'Transport',       icon: '🚇', hint: 'MRT, bus, taxis, ride-hailing' },
   { value: 'petrol',      label: 'Petrol',          icon: '⛽', hint: 'Fuel stations' },
+  { value: 'entertainment', label: 'Entertainment',   icon: '🎬', hint: 'Cinemas, bars, clubs, events' },
   { value: 'contactless', label: 'Contactless',     icon: '📲', hint: 'In-store tap-to-pay (Apple/Google Pay)' },
   { value: 'fcy',         label: 'Overseas (FCY)',  icon: '🌏', hint: 'Foreign currency spend' },
   { value: 'general',     label: 'Everything else', icon: '💳', hint: 'Bills, groceries, anything uncategorised' },
@@ -58,10 +60,11 @@ const LABEL_CATEGORY_MAP: Record<string, SpendCategory[]> = {
   'Foreign Currency (FCY)':                           ['fcy'],
   'FCY Spend':                                        ['fcy'],
   'Overseas Spend (FCY)':                             ['fcy'],
-  // UOB Lady's cards — bonus applies only to the user's chosen quarterly category
-  'Chosen Bonus Category':                            ['dining', 'travel', 'shopping', 'transport'],
-  'Bonus Category 1':                                 ['dining', 'travel', 'shopping', 'transport'],
-  'Bonus Category 2':                                 ['dining', 'travel', 'shopping', 'transport'],
+  // UOB Lady's cards — bonus applies only to the user's chosen quarterly
+  // category. Full reachable set across UOB's 7 options (see UOB_LADYS_OPTIONS).
+  'Chosen Bonus Category':                            ['dining', 'travel', 'shopping', 'transport', 'petrol', 'entertainment', 'contactless'],
+  'Bonus Category 1':                                 ['dining', 'travel', 'shopping', 'transport', 'petrol', 'entertainment', 'contactless'],
+  'Bonus Category 2':                                 ['dining', 'travel', 'shopping', 'transport', 'petrol', 'entertainment', 'contactless'],
 };
 
 /** Labels that are general/base rates (match every category as fallback). */
@@ -75,7 +78,38 @@ const GENERAL_LABELS = new Set(['General', 'Local Spend']);
  * (Not transport: rides are in-app payments, and SimplyGo transit is excluded.)
  */
 const CONTACTLESS_LABELS = new Set(['Contactless Tap', 'Offline Contactless']);
-export const TAP_ELIGIBLE_CATEGORIES: SpendCategory[] = ['contactless', 'dining', 'shopping', 'petrol'];
+export const TAP_ELIGIBLE_CATEGORIES: SpendCategory[] = ['contactless', 'dining', 'shopping', 'petrol', 'entertainment'];
+
+/**
+ * UOB Lady's / Lady's Solitaire quarterly bonus options — the ACTUAL seven
+ * choices in the UOB TMRW app, each mapped to this app's spend categories.
+ */
+export interface UobLadysOption {
+  id: string;
+  label: string;
+  icon: string;
+  appCategories: SpendCategory[];
+}
+
+export const UOB_LADYS_OPTIONS: UobLadysOption[] = [
+  { id: 'beauty',        label: 'Beauty & Wellness',     icon: '💅', appCategories: ['shopping'] },
+  { id: 'dining',        label: 'Dining',                icon: '🍜', appCategories: ['dining'] },
+  { id: 'entertainment', label: 'Entertainment',         icon: '🎬', appCategories: ['entertainment'] },
+  { id: 'family',        label: 'Family (supermarkets)', icon: '🛒', appCategories: ['contactless'] },
+  { id: 'fashion',       label: 'Fashion',               icon: '👗', appCategories: ['shopping'] },
+  { id: 'transport',     label: 'Transport & petrol',    icon: '🚇', appCategories: ['transport', 'petrol'] },
+  { id: 'travel',        label: 'Travel',                icon: '✈️', appCategories: ['travel'] },
+];
+
+/** App categories unlocked by a set of chosen UOB option ids. */
+export function uobOptionsToCategories(optionIds: string[]): SpendCategory[] {
+  const cats = new Set<SpendCategory>();
+  for (const id of optionIds) {
+    const opt = UOB_LADYS_OPTIONS.find(o => o.id === id);
+    opt?.appCategories.forEach(c => cats.add(c));
+  }
+  return [...cats];
+}
 
 export function isContactlessLabel(label: string): boolean {
   return CONTACTLESS_LABELS.has(label);

@@ -223,7 +223,7 @@ export default function RecommendPage() {
   const [mounted, setMounted] = useState(false);
   const [myCards, setMyCards] = useState<Card[]>([]);
   const [entries, setEntries] = useState<SpendEntry[]>([]);
-  const [settings, setSettings] = useState<UserSettings>({ statementDays: {} });
+  const [settings, setSettings] = useState<UserSettings>({ statementDays: {}, uobOptions: {} });
   const [text, setText] = useState('');
   const [chosenCategory, setChosenCategory] = useState<SpendCategory | null>(null);
   const [notSure, setNotSure] = useState(false);
