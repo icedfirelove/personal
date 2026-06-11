@@ -209,7 +209,7 @@ const GENERIC_HINTS: [string, SpendCategory][] = [
 
 // Shorthand the miles community uses for card names → substring of the real name
 const CARD_NAME_ALIASES: Record<string, string> = {
-  ppv: 'preferred platinum',
+  ppv: 'preferred',
   ww: 'womans world', wwmc: 'womans world',
   kf: 'krisflyer',
   pm: 'premiermiles', pmiles: 'premiermiles',

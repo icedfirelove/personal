@@ -49,12 +49,18 @@ function AlertsSection({ alerts }: { alerts: Alert[] }) {
 
 // ─── Card summary row ─────────────────────────────────────────
 
-function SummaryRow({ summary }: { summary: CardPeriodSummary }) {
+function SummaryRow({ summary, rank }: { summary: CardPeriodSummary; rank: number }) {
   const [imgError, setImgError] = useState(false);
   const { card } = summary;
+  const top = rank === 0 && summary.milesEarned > 0;
 
   return (
-    <div className="bg-surface rounded-2xl shadow-sm border border-outline px-4 py-3.5">
+    <div
+      className={`rounded-2xl shadow-sm border px-4 py-3.5 row-enter ${
+        top ? 'glass border-primary/40 glow-primary' : 'bg-surface border-outline'
+      }`}
+      style={{ animationDelay: `${rank * 70}ms` }}
+    >
       <div className="flex items-center gap-3">
         {/* Thumbnail */}
         <div
@@ -102,7 +108,7 @@ function SummaryRow({ summary }: { summary: CardPeriodSummary }) {
         <div className="mt-3 space-y-2">
           {summary.capGroups.map(g => {
             const pct = Math.min(100, (g.spentSgd / g.capSgd) * 100);
-            const barColor = pct >= 100 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bg-teal-600';
+            const barColor = pct >= 100 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bar-aurora';
             return (
               <div key={g.capSgd + g.labels.join()}>
                 <div className="flex items-baseline justify-between mb-0.5">
@@ -116,7 +122,7 @@ function SummaryRow({ summary }: { summary: CardPeriodSummary }) {
                   </span>
                 </div>
                 <div className="h-1.5 rounded-full bg-surface-high overflow-hidden">
-                  <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
+                  <div className={`h-full rounded-full bar-grow ${barColor}`} style={{ width: `${pct}%` }} />
                 </div>
               </div>
             );
@@ -136,6 +142,27 @@ export default function OverviewPage() {
   const [summaries, setSummaries] = useState<CardPeriodSummary[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [totals, setTotals] = useState({ miles: 0, spend: 0 });
+  const [shownMiles, setShownMiles] = useState(0);
+
+  // Count-up animation for the hero number
+  useEffect(() => {
+    const target = Math.round(totals.miles);
+    if (target === 0) {
+      setShownMiles(0);
+      return;
+    }
+    const duration = 700;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setShownMiles(Math.round(target * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [totals.miles]);
 
   useEffect(() => {
     setMounted(true);
@@ -163,18 +190,21 @@ export default function OverviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background page-bottom">
+    <div className="relative min-h-screen bg-background page-bottom">
+      {/* Aurora colour wash */}
+      <div className="aurora-blob" aria-hidden />
+
       {/* Top nav */}
-      <div className="sticky top-0 z-20 bg-surface border-b border-outline px-4 pb-4 header-safe">
+      <div className="sticky top-0 z-20 glass border-b border-outline px-4 pb-4 header-safe">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold text-on-surface">Overview</h1>
             <p className="text-xs text-on-surface-variant">Your miles & caps this period</p>
           </div>
           <div className="text-right">
-            <p className="text-base font-bold text-on-surface">
-              {Math.round(totals.miles).toLocaleString()}
-              <span className="text-[10px] font-semibold text-on-surface-variant"> mi</span>
+            <p className="font-display text-2xl font-bold tracking-tight text-aurora">
+              {shownMiles.toLocaleString()}
+              <span className="text-[11px] font-semibold text-on-surface-variant"> mi</span>
             </p>
             <p className="text-[10px] text-on-surface-variant">${Math.round(totals.spend).toLocaleString()} tracked</p>
           </div>
@@ -201,8 +231,8 @@ export default function OverviewPage() {
         ) : (
           <>
             <div className="space-y-3">
-              {summaries.map(s => (
-                <SummaryRow key={s.card.id} summary={s} />
+              {summaries.map((s, i) => (
+                <SummaryRow key={s.card.id} summary={s} rank={i} />
               ))}
             </div>
             <p className="text-[11px] text-on-surface-variant text-center mt-6 leading-relaxed">

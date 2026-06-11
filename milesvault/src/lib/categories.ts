@@ -67,6 +67,20 @@ const LABEL_CATEGORY_MAP: Record<string, SpendCategory[]> = {
 /** Labels that are general/base rates (match every category as fallback). */
 const GENERAL_LABELS = new Set(['General', 'Local Spend']);
 
+/**
+ * Mobile-contactless earn rates (Apple/Google/Samsung Pay tap) apply at
+ * virtually ANY physical merchant, not just a "contactless" category —
+ * e.g. UOB Preferred Visa earns 4 mpd at a restaurant if you pay by phone.
+ * These are the in-person categories where a phone tap is realistic.
+ * (Not transport: rides are in-app payments, and SimplyGo transit is excluded.)
+ */
+const CONTACTLESS_LABELS = new Set(['Contactless Tap', 'Offline Contactless']);
+export const TAP_ELIGIBLE_CATEGORIES: SpendCategory[] = ['contactless', 'dining', 'shopping', 'petrol'];
+
+export function isContactlessLabel(label: string): boolean {
+  return CONTACTLESS_LABELS.has(label);
+}
+
 /** Labels whose bonus is conditional on a user choice (e.g. UOB Lady's quarterly pick). */
 const CONDITIONAL_LABELS = new Set(['Chosen Bonus Category', 'Bonus Category 1', 'Bonus Category 2']);
 
@@ -85,5 +99,7 @@ export function isConditionalLabel(label: string): boolean {
 /** Does this earn-rate label cover the given spend category? */
 export function rateMatchesCategory(label: string, category: SpendCategory): boolean {
   if (category === 'general') return isGeneralLabel(label);
+  // Phone-tap rates work at any in-person merchant (dining, retail, petrol…)
+  if (isContactlessLabel(label) && TAP_ELIGIBLE_CATEGORIES.includes(category)) return true;
   return labelCategories(label).includes(category);
 }

@@ -100,6 +100,11 @@ function RecRow({
                 Only if chosen bonus category
               </span>
             )}
+            {rec.tapToPay && (
+              <span className="text-[9px] font-bold text-teal-300 bg-teal-950 border border-teal-900 rounded-full px-1.5 py-0.5">
+                📲 Pay by phone tap (Apple/Google Pay)
+              </span>
+            )}
             {rec.amazeBoost && (
               <span className="text-[9px] font-bold text-purple-400 bg-purple-950 border border-purple-900 rounded-full px-1.5 py-0.5">
                 ⚡ Amaze-compatible

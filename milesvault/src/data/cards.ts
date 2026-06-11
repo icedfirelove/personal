@@ -335,16 +335,16 @@ export const CARDS: Card[] = [
   // ── UOB ─────────────────────────────────────────────────────
   {
     id: 'uob-ppv',
-    cardName: 'UOB Preferred Platinum Visa',
+    cardName: 'UOB Preferred Visa',
     bank: 'UOB',
     cardType: 'Visa',
     annualFeeSgd: 196.20,
     incomeRequirementSgd: 30000,
     pointsCurrency: 'UNI$',
-    tagline: '4 mpd online & contactless · split $600/$600 caps',
+    tagline: '4 mpd via Apple/Google Pay at ANY shop · split $600/$600 caps',
     earnRates: [
-      { label: 'Online Shopping',    mpd: 4, capSgd: 600,  notes: 'Separate $600/month cap (from Oct 2025)' },
-      { label: 'Contactless Tap',    mpd: 4, capSgd: 600,  notes: 'Separate $600/month cap. Min $5 transaction.' },
+      { label: 'Online Shopping',    mpd: 4, capSgd: 600,  notes: 'Separate $600/month cap. Excludes air tickets & cruises (0.4 mpd).' },
+      { label: 'Contactless Tap',    mpd: 4, capSgd: 600,  notes: 'PHONE tap only (Apple/Google/Samsung Pay) — physical card tap and in-app payments earn 0.4 mpd. Works at any merchant category. Separate $600/month cap. Min $5 transaction.' },
       { label: 'General',            mpd: 0.4 },
     ],
     capResetDay: 'Your UOB statement date (check your bill)',
@@ -360,7 +360,7 @@ export const CARDS: Card[] = [
     officialPageUrl: 'https://www.uob.com.sg/personal/cards/credit-cards/uob-preferred-platinum-visa-card.page',
     imagePath: '/cards/uob-ppv.webp',
     ...{ bankColor: bc('UOB').bg, bankTextColor: bc('UOB').text },
-    notes: 'UNI$ expire 2 years from end of month earned — watch the clock. Pair with Instarem Amaze to convert online spend to contactless and unlock 4 mpd on more merchants. From Oct 2025: separate $600/month sub-caps for online and offline contactless (previously a single combined cap of $1,100).',
+    notes: 'Renamed from "UOB Preferred Platinum Visa" in Mar 2026. The killer feature: paying by PHONE tap (Apple/Google/Samsung Pay) earns 4 mpd at virtually any physical merchant — dining, groceries, retail, anything. Caveats: physical card tap does NOT count, in-app payments do NOT count, SMART$ merchants excluded. UNI$ expire 2 years from end of month earned. From Oct 2025: separate $600/month sub-caps for online and mobile contactless (previously combined $1,100).',
   },
   {
     id: 'uob-ladys-card',

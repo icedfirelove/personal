@@ -9,6 +9,7 @@ import {
   rateMatchesCategory,
   isGeneralLabel,
   isConditionalLabel,
+  isContactlessLabel,
 } from '@/lib/categories';
 
 // ─── Types ─────────────────────────────────────────────────────
@@ -277,6 +278,7 @@ export interface Recommendation {
   hitsCap: boolean;           // part of this spend would overflow the cap
   conditional: boolean;       // bonus depends on user selection (UOB Lady's)
   amazeBoost: boolean;        // pairing with Amaze may unlock a higher rate
+  tapToPay: boolean;          // bonus requires paying via phone tap (Apple/Google Pay)
 }
 
 export function recommendCards(
@@ -332,6 +334,11 @@ export function recommendCards(
         hitsCap,
         conditional: bonus ? isConditionalLabel(bonus.label) : false,
         amazeBoost: category === 'online' && card.amazeCompatible,
+        tapToPay:
+          !!bonus &&
+          bonus.mpd > general &&
+          isContactlessLabel(bonus.label) &&
+          category !== 'contactless',
       };
     });
 
